@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <!-- [START head_html] -->
+  <head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+  </head>
+  <!-- [END head_html] -->
+  <body>
+  <div>
+	  <p>Welcome to 5626 shared cost app</p>
+  </div>
+  {% if current_user %}
+    {% if invited_user %}
+	  <div>Enter your preferred display name {{invited_user.email}}</div>
+	  <form action="/register" method="post">
+	    Name: <input type="text" name="display_name" value="{{invited_user.display_name}}"><br>
+	    <input type="submit" value="register">
+	  </form>
+	  {% else %}
+	  <div>You have not been invited</div>
+	  {% endif %}
+  {% endif %}
+    <hr>
+    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+  </body>
+</html>
+{% endautoescape %}

@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+{% autoescape true %}
+<html>
+  <!-- [START head_html] -->
+  <head>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
+  </head>
+  <!-- [END head_html] -->
+  <body>
+  <div>
+    <p> Select Month </p>
+    <select>
+      <option value="all">All Transactions</option>
+      {% for month in months %}
+      <option value="{{month.strftime('%m-%Y')}}">{{month.strftime('%B %Y')}}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+	  <p>Transactions</p>
+    {% for transaction in transactions %}
+      <p> {{ user_id_to_name[transaction.owner_user_id] }} - {{ transaction.date }} - {{ transaction.description }} - {{transaction.total}} </p>
+    {% endfor %}
+  </div>
+  
+  Add a new transaction
+  <form action="/transactions/upsert" method="post">
+    Date: <input type="text" name="date"><br>
+    Total paid: <input type="text" name="total"><br>
+    Description: <input type="text" name="description"><br>
+    For: <br>
+  <div>
+    {% for user_id in user_id_to_name %}
+    <input type="checkbox" name="user_id" value="{{ user_id }}">{{user_id_to_name[user_id]}}<br>
+    {% endfor %}
+  </div>
+  <input type="submit" value="Submit">
+  </form>
+    <hr>
+    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+
+  </body>
+</html>
+{% endautoescape %}
