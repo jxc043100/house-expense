@@ -16,6 +16,9 @@ handlers:
   
 - url: /transaction.*
   script: transactions.application
+  
+- url: /summary.*
+  script: summary.application
 
 libraries:
 - name: webapp2
