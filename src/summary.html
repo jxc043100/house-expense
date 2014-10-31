@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Basic CRUD Application - jQuery EasyUI CRUD Demo</title>
+    <title>Personal Summary</title>
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/color.css">
@@ -11,18 +11,19 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
 </head>
 <body>
-    <table id="dg" title="Your Transactions" class="easyui-datagrid" style="width:700px;height:500px"
+    <table id="dg" title="Your Transactions" class="easyui-datagrid" style="width:1000px;height:500px"
             url="summary/list"
             toolbar="#toolbar" pagination="true"
             rownumbers="true" fitColumns="true" singleSelect="true">
         <thead>
             <tr>
-                <th field="payer" width="50">Payer</th>
-                <th field="date" width="50">Date</th>
-                <th field="description" width="50">Description</th>
-                <th field="total" width="50">Total</th>
-                <th field="expense" width="50">Expense</th>
-                <th field="gain" width="50">Gain</th>
+                <th field="payer" width="40">Payer</th>
+                <th field="date" width="40">Date</th>
+                <th field="description" width="80">Description</th>
+                <th field="total" width="20">Total</th>
+                <th field="expense" width="20">Credit</th>
+                <th field="gain" width="20">Owe</th>
+                <th field="balance" width="20">Balance</th>
             </tr>
         </thead>
     </table>

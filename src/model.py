@@ -30,7 +30,7 @@ class Transaction(ndb.Model):
   description = ndb.StringProperty(indexed=True)
   total = ndb.FloatProperty(indexed=False)
   share = ndb.StructuredProperty(Share, repeated=True)
-    
+
     
     
     

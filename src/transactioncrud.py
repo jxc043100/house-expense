@@ -63,7 +63,7 @@ def transactionToDict(transaction):
   ui_transaction = {}
   ui_transaction['transaction_id'] = str(transaction.key.id())
   ui_transaction['payer'] = user_id_to_name[transaction.owner_user_id]
-  ui_transaction['date'] = transaction.date.isoformat()
+  ui_transaction['date'] = transaction.date.strftime('%m/%d/%Y')
   ui_transaction['description'] = transaction.description
   ui_transaction['total'] = transaction.total
   return ui_transaction

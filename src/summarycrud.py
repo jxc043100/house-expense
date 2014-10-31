@@ -40,33 +40,58 @@ while month_to_add > start_date:
     month = month - 1
   month_to_add = datetime(year, month, 1)
 
+class SummaryEntry:
+  def __init__(self, user_id, transaction):
+    self.user_id = user_id
+    self.transaction = transaction
+    self.date = transaction.date
+    self.payer_id = transaction.owner_user_id
+    self.description = transaction.description
+    self.total_paid = transaction.total
+    self.paid = 0
+    self.gain = 0
+    if transaction.owner_user_id == user_id:
+      self.paid = self.total_paid
+    for share in transaction.share:
+      if share.target == user_id:
+        self.gain = self.total_paid / len(transaction.share)
+    self.balance = self.paid - self.gain
+    
+  def toUiEntry(self):
+    ui_transaction = {}
+    ui_transaction['payer'] = user_id_to_name[self.payer_id]
+    ui_transaction['date'] = self.date.strftime('%m/%d/%Y')
+    ui_transaction['description'] = self.description
+    ui_transaction['total'] = self.total_paid
+    ui_transaction['expense'] = self.paid
+    ui_transaction['gain'] = self.gain
+    ui_transaction['balance'] = self.balance
+    return ui_transaction
+      
 class List(webapp2.RequestHandler):
   def post(self):
-    users_query = User.query()
-    all_users = users_query.fetch(20)
-    user_id_to_name = {}
-    for user in all_users:
-      if user.user_id:
-        user_id_to_name[user.user_id] = user.display_name
-    transactions_query = Transaction.query()
-    transactions = transactions_query.fetch(50)
-
-    self.response.headers['Content-Type'] = 'application/json'
-    transaction_array = []
-    for transaction in transactions:
-      transaction_array.append(transactionToDict(transaction))
-    result = {}
-    result['rows'] = transaction_array
-    self.response.write(json.dumps(result))
-    
-def transactionToDict(transaction):
-  ui_transaction = {}
-  ui_transaction['transaction_id'] = str(transaction.key.id())
-  ui_transaction['payer'] = user_id_to_name[transaction.owner_user_id]
-  ui_transaction['date'] = transaction.date.isoformat()
-  ui_transaction['description'] = transaction.description
-  ui_transaction['total'] = transaction.total
-  return ui_transaction
+    current_user = users.get_current_user()
+    if current_user:
+      transactions_query = Transaction.query()
+      transactions = transactions_query.fetch(50)
+      summary_array = []
+      total_owed = 0
+      for transaction in transactions:
+        if transaction.owner_user_id == current_user.user_id():
+          summary_entry = SummaryEntry(current_user.user_id(), transaction)
+          summary_array.append(summary_entry.toUiEntry())
+          total_owed += summary_entry.balance
+          continue
+        for share in transaction.share:
+          if share.target == current_user.user_id(): 
+            summary_entry = SummaryEntry(current_user.user_id(), transaction)
+            summary_array.append(summary_entry.toUiEntry())
+            total_owed += summary_entry.balance  
+      result = {}
+      result['rows'] = summary_array
+      result['total_owed'] = total_owed
+      self.response.headers['Content-Type'] = 'application/json'
+      self.response.write(json.dumps(result))
     
 class Pay(webapp2.RequestHandler):
 
