@@ -1,44 +1,90 @@
 <!DOCTYPE html>
-{% autoescape true %}
 <html>
-  <!-- [START head_html] -->
-  <head>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
-  </head>
-  <!-- [END head_html] -->
-  <body>
-  <div>
-  {{ user_id_to_name[user_id] }}
-  </div>
-  <div>
-    <p> Select Month </p>
-    <select>
-      {% for month in months %}
-      <option value="{{month.strftime('%m-%Y')}}">{{month.strftime('%B %Y')}}</option>
-      {% endfor %}
-    </select>
-  </div>
-  <div>
-    {% if user_id %}
-		  <p>Transactions</p>
-	    {% for entry in summary_entries %}
-	      <p> {{ user_id_to_name[entry.payer_id] }} - {{ entry.date }} - {{ entry.description }} - {{entry.total}} - {{entry.balance}} </p>
-	    {% endfor %}
-    {% endif%}
-  </div>
-  <div>Total:{{total_balance}}</div>
-  Add a new transaction
-  <form action="/transactions/upsert" method="post">
-    Date: <input type="text" name="date"><br>
-    Total paid: <input type="text" name="total"><br>
-    Description: <input type="text" name="description"><br>
-    For: <br>
-  
-  <input type="submit" value="Submit">
-  </form>
-    <hr>
+<head>
+    <meta charset="UTF-8">
+    <title>Basic CRUD Application - jQuery EasyUI CRUD Demo</title>
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/demo/demo.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.min.js"></script>
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+    <table id="dg" title="Your Transactions" class="easyui-datagrid" style="width:700px;height:500px"
+            url="summary/list"
+            toolbar="#toolbar" pagination="true"
+            rownumbers="true" fitColumns="true" singleSelect="true">
+        <thead>
+            <tr>
+                <th field="payer" width="50">Payer</th>
+                <th field="date" width="50">Date</th>
+                <th field="description" width="50">Description</th>
+                <th field="total" width="50">Total</th>
+                <th field="expense" width="50">Expense</th>
+                <th field="gain" width="50">Gain</th>
+            </tr>
+        </thead>
+    </table>
+    
+    <div id="toolbar">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="pay()">Pay</a>
+    </div>
+    
+    <div>Total Owed: </div>
+    
+    <div id="dlg" class="easyui-dialog" style="width:400px;height:400px;padding:10px 20px"
+            closed="true" buttons="#dlg-buttons">
+        <div class="ftitle">Transaction Information</div>
+        <form id="fm" method="post" novalidate>
+            <div class="fitem">
+                <label>Date:</label>
+                <input name="date" class="easyui-datebox" required="true">
+            </div>
+            <input type="hidden" name="transaction_id"/>
+            <div class="fitem">
+                <label>Payment Method:</label>
+                <input name="method" class="easyui-textbox" required="true">
+            </div>
+            <div class="fitem">
+                <label>Amount:</label>
+                <input name="amount" class="easyui-textbox" required="true">
+            </div>    
+        </form>
+    </div>
+    <div id="dlg-buttons">
+        <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveTransaction()" style="width:90px">Save</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+    </div>
+    <script type="text/javascript">
+        function newTransaction(){
+            $('#dlg').dialog('open').dialog('setTitle','New Transaction');
+            $('#fm').form('clear');
+        }
+    </script>
+    <style type="text/css">
+        #fm{
+            margin:0;
+            padding:10px 30px;
+        }
+        .ftitle{
+            font-size:14px;
+            font-weight:bold;
+            padding:5px 0;
+            margin-bottom:10px;
+            border-bottom:1px solid #ccc;
+        }
+        .fitem{
+            margin-bottom:5px;
+        }
+        .fitem label{
+            display:inline-block;
+            width:100px;
+        }
+        .fitem input{
+            width:160px;
+        }
+    </style>
     <a href="{{ url|safe }}">{{ url_linktext }}</a>
-
-  </body>
+</body>
 </html>
-{% endautoescape %}

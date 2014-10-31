@@ -14,7 +14,13 @@ handlers:
 - url: /register
   script: admin.application
   
-- url: /transaction.*
+- url: /transaction/.*
+  script: transactioncrud.application
+
+- url: /summary/.*
+  script: summarycrud.application
+
+- url: /transactions
   script: transactions.application
   
 - url: /summary.*
