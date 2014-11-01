@@ -1,19 +1,22 @@
+from protorpc import messages
 from google.appengine.ext import ndb
-
+from google.appengine.ext.ndb import msgprop
 
 def transaction_key(entry_id):
     """Constructs a Datastore key for a Guestbook entity with guestbook_name."""
     return ndb.Key('Purchase', entry_id)
 
+class UserType(messages.Enum):
+  RESIDENT = 1
+  NONRESIDENT = 2
+  ADMIN = 3
+  
 class User(ndb.Model):
   user_id = ndb.StringProperty(indexed=True)
   email = ndb.StringProperty(indexed=True)
   display_name = ndb.StringProperty(indexed=False)
   admin = ndb.BooleanProperty(indexed=True)
-  
-class Month(ndb.Model):
-  display_name = ndb.StringProperty(indexed=False)
-  start_date = ndb.DateProperty(indexed=True)
+  type = msgprop.EnumProperty(UserType, required=True)
   
 class Share(ndb.Model):
   """Models a target and what portion of the cost is counted for this person."""
@@ -23,13 +26,24 @@ class Share(ndb.Model):
   share = ndb.IntegerProperty(indexed=False)
   dollar_portion = ndb.FloatProperty(indexed=False)
   
+class TransactionType(messages.Enum):
+  COMMON_FOOD = 1
+  PERSONAL = 2
+  RENT = 3
+  PAYMENT = 4
+  NONRESIDENT = 5
+  COMMON_CLEANING = 6
+  
+  
 class Transaction(ndb.Model):
   """Models a transaction amount in which the owner paid for others."""
   owner_user_id = ndb.StringProperty(indexed=True)
+  type = msgprop.EnumProperty(TransactionType, required=True)
   date = ndb.DateTimeProperty()
   description = ndb.StringProperty(indexed=True)
   total = ndb.FloatProperty(indexed=False)
   share = ndb.StructuredProperty(Share, repeated=True)
+  
 
     
     

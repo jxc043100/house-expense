@@ -26,6 +26,12 @@ handlers:
 - url: /summary.*
   script: summary.application
 
+- url: /user/.*
+  script: usercrud.application
+
+- url: /users
+  script: users.application
+
 libraries:
 - name: webapp2
   version: latest

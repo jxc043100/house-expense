@@ -10,7 +10,7 @@ from model import Month
 from model import User
 from model import Share
 from model import Transaction
-
+from model import TransactionType
 from datetime import date
 from datetime import datetime
 
@@ -57,6 +57,7 @@ class ListTransaction(webapp2.RequestHandler):
       transaction_array.append(transactionToDict(transaction))
     result = {}
     result['rows'] = transaction_array
+    result['total'] = len(transaction_array)
     self.response.write(json.dumps(result))
     
 def transactionToDict(transaction):
@@ -66,6 +67,10 @@ def transactionToDict(transaction):
   ui_transaction['date'] = transaction.date.strftime('%m/%d/%Y')
   ui_transaction['description'] = transaction.description
   ui_transaction['total'] = transaction.total
+  ui_transaction['transaction_type'] = transaction.type.name
+  if transaction.type == TransactionType.PERSONAL:
+    ui_transaction['user'] = user_id_to_name[transaction.share[0].target]
+      
   return ui_transaction
     
 class UpsertTransaction(webapp2.RequestHandler):
@@ -80,18 +85,21 @@ class UpsertTransaction(webapp2.RequestHandler):
         total = float(self.request.get('total'))
         time = datetime.strptime(self.request.get('date'),"%m/%d/%Y")
         transaction_id = self.request.get('transaction_id')
+        type = self.request.get('transaction_type')
+        target_user = self.request.get('user')
         if not transaction_id:
-          transaction = Transaction(owner_user_id=current_user.user_id(), description=description, total=total, date=time)
+          transaction = Transaction(owner_user_id=current_user.user_id(), description=description, total=total, date=time, type = TransactionType(type))
         else:
           transaction_key = ndb.Key(Transaction, int(transaction_id))
           transaction = transaction_key.get()
           transaction.description = description
           transaction.total = total
+          transaction.type = TransactionType(type)
           transaction.date = time
         shares = []
         transaction.share = []
-        for user_id in self.request.get_all('user_id'):
-            shares.append(Share(target=user_id, share=1)) 
+        if transaction.type == TransactionType.PERSONAL:
+          shares.append(Share(target=target_user, share=1)) 
         transaction.share = shares
         transaction.put()
         self.response.write(json.dumps({}))

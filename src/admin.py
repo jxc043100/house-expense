@@ -6,7 +6,6 @@ from google.appengine.ext import ndb
 
 import jinja2
 import webapp2
-from model import Month
 from model import User
 from datetime import date
 
@@ -19,8 +18,7 @@ class AdminMain(webapp2.RequestHandler):
 
   def get(self):
     all_users = User.query().fetch()
-    months_query = Month.query().order(-Month.start_date)
-    months = months_query.fetch()
+   
     
     if users.get_current_user():
         url = users.create_logout_url(self.request.uri)
@@ -31,7 +29,6 @@ class AdminMain(webapp2.RequestHandler):
 
     template_values = {
         'users': all_users,
-        'months': months,
         'url': url,
         'url_linktext': url_linktext,
     }
@@ -87,37 +84,10 @@ class RegisterUser(webapp2.RequestHandler):
 
         self.redirect('/transactions')
 
-class DeleteUser(webapp2.RequestHandler):
-    def post(self):
-        user_key = ndb.Key(User, self.request.get('email'))
-        user = user_key.get()
-        if user:
-          user.key.delete()
-
-        self.redirect('/admin')
-        
-class CreateMonth(webapp2.RequestHandler):
-
-    def post(self):
-        display_name = self.request.get('display_name')
-        year_string = self.request.get('year')
-        month_string = self.request.get('month')
-        start_date = date(int(year_string), int(month_string), 1)
-
-        month = Month(id=year_string+ '/' +month_string)
-        month.display_name = display_name
-        month.start_date = start_date
-        month.put()
-
-        self.redirect('/')
-
-
 application = webapp2.WSGIApplication([
     ('/', AdminMain),
     ('/admin', AdminMain),
-    ('/admin/createMonth', CreateMonth),
     ('/admin/inviteUser', InviteUser),
-    ('/admin/deleteUser', DeleteUser),
     ('/register', RegisterUser),
 
 ], debug=True)

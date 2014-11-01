@@ -5,12 +5,10 @@ from google.appengine.api import users
 import json
 import jinja2
 import webapp2
-from model import Month
+from model import TransactionType
 from model import User
-from model import Share
 from model import Transaction
 
-from datetime import date
 from datetime import datetime
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -63,13 +61,14 @@ class TransactionsMain(webapp2.RequestHandler):
         url_linktext = 'Logout'
     else:
         url = users.create_login_url(self.request.uri)
-        url_linktext = 'Login'
+        url_linktext = 'You must login first'
 
     template_values = {
         'users': all_users,
         'user_id_to_name' : user_id_to_name,
         'months': months,
         'transactions': transactions,
+        'transaction_types': [TransactionType.COMMON, TransactionType.NONRESIDENT, TransactionType.PAYMENT, TransactionType.PERSONAL, TransactionType.RENT], 
         'url': url,
         'url_linktext': url_linktext,
     }

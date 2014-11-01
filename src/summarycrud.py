@@ -89,7 +89,8 @@ class List(webapp2.RequestHandler):
             total_owed += summary_entry.balance  
       result = {}
       result['rows'] = summary_array
-      result['total_owed'] = total_owed
+      result['total'] = len(summary_array)
+      result['footer'] = [{"description":"Total Balance: " + str(total_owed)}]
       self.response.headers['Content-Type'] = 'application/json'
       self.response.write(json.dumps(result))
     

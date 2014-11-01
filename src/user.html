@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Basic CRUD Application - jQuery EasyUI CRUD Demo</title>
+    <title>All Users</title>
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/color.css">
@@ -11,61 +11,46 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
 </head>
 <body>
-    <p><a href="{{ url|safe }}">{{ url_linktext }}</a></p>
+    <p>{{user_email}} | <a href="{{ url|safe }}">{{ url_linktext }} | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a></p>
     <table id="dg" title="All Transactions" class="easyui-datagrid" style="width:700px;height:500px"
-            url="transaction/list"
+            url="user/list"
             toolbar="#toolbar" pagination="true"
             rownumbers="true" fitColumns="true" singleSelect="true">
         <thead>
             <tr>
-                <th field="payer" width="50">Payer</th>
-                <th field="date" width="50">Date</th>
-                <th field="description" width="50">Description</th>
-                <th field="total" width="50">Total</th>
-                <th field="transaction_type" width="50">Type</th>
-                <th field="user" width="50">For</th>
+                <th field="email" width="50">Email</th>
+                <th field="display_name" width="50">Name</th>
+                <th field="user_type" width="50">Type</th>
+                <th field="registered" width="50">Registered</th>
             </tr>
         </thead>
     </table>
     <div id="toolbar">
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newTransaction()">New Transaction</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editTransaction()">Edit Transaction</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteTransaction()">Remove Transaction</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteUser()">Remove User</a>
     </div>
     
     <div id="dlg" class="easyui-dialog" style="width:400px;height:400px;padding:10px 20px"
             closed="true" buttons="#dlg-buttons">
-        <div class="ftitle">Transaction Information</div>
+        <div class="ftitle">All Users</div>
         <form id="fm" method="post" novalidate>
             <div class="fitem">
-                <label>Date:</label>
-                <input name="date" class="easyui-datebox" required="true">
-            </div>
-            <input type="hidden" name="transaction_id"/>
-            <div class="fitem">
-                <label>Description:</label>
-                <input name="description" class="easyui-textbox" required="true">
+                <label>Email:</label>
+                <input name="email" class="easyui-textbox" required="true">
             </div>
             <div class="fitem">
-                <label>Total:</label>
-                <input name="total" class="easyui-textbox" required="true">
+                <label>Display name:</label>
+                <input name="display_name" class="easyui-textbox" required="true">
             </div>
             <div class="fitem">
                 <label>Type:</label>
-                <select id="transaction_type" class="easyui-combobox" name="transaction_type" style="width:150px;">
-                  {% for type in transaction_types %}
-                    <option value="{{type}}">{{type}}</option>
-                  {% endfor %}
+                <select id="user_type" class="easyui-combobox" name="user_type" style="width:150px;">
+                    {% for type in user_types %}
+                      <option value="{{type}}">{{type}}</option>
+                    {% endfor %}
                 </select>
             </div>
-            <div class="fitem">
-                <label>Purchased for:</label>
-                <select id="user" class="easyui-combobox" name="user" style="width:150px;">
-                  {% for user_id in user_id_to_name %}
-                    <option value="{{user_id}}">{{user_id_to_name[user_id]}}</option>
-                  {% endfor %}
-                </select>
-           </div>      
         </form>
     </div>
     <div id="dlg-buttons">
@@ -73,21 +58,20 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
     </div>
     <script type="text/javascript">
-        var url;
-        function newTransaction(){
-            $('#dlg').dialog('open').dialog('setTitle','New Transaction');
+        function newUser(){
+            $('#dlg').dialog('open').dialog('setTitle','New User');
             $('#fm').form('clear');
         }
-        function editTransaction(){
+        function editUser(){
             var row = $('#dg').datagrid('getSelected');
             if (row){
-                $('#dlg').dialog('open').dialog('setTitle','Edit Transaction');
+                $('#dlg').dialog('open').dialog('setTitle','Edit User');
                 $('#fm').form('load',row);
             }
         }
         function saveTransaction(){
             $('#fm').form('submit',{
-                url: 'transaction/upsert',
+                url: 'user/upsert',
                 onSubmit: function(){
                     return $(this).form('validate');
                 },
@@ -105,12 +89,12 @@
                 }
             });
         }
-        function deleteTransaction(){
+        function deleteUser(){
             var row = $('#dg').datagrid('getSelected');
             if (row){
                 $.messager.confirm('Confirm','Are you sure you want to destroy this transaction?',function(r){
                     if (r){
-                        $.post('transaction/delete',{transaction_id:row.transaction_id},function(result){
+                        $.post('user/delete',{email:row.email},function(result){
                             if (result.success){
                                 $('#dg').datagrid('reload');    // reload the user data
                             } else {

@@ -11,10 +11,12 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
 </head>
 <body>
+    <a href="{{ url|safe }}">{{ url_linktext }}</a>
     <table id="dg" title="Your Transactions" class="easyui-datagrid" style="width:1000px;height:500px"
             url="summary/list"
             toolbar="#toolbar" pagination="true"
-            rownumbers="true" fitColumns="true" singleSelect="true">
+            rownumbers="true" fitColumns="true" singleSelect="true"
+            showFooter="true">
         <thead>
             <tr>
                 <th field="payer" width="40">Payer</th>
@@ -31,8 +33,6 @@
     <div id="toolbar">
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="pay()">Pay</a>
     </div>
-    
-    <div>Total Owed: </div>
     
     <div id="dlg" class="easyui-dialog" style="width:400px;height:400px;padding:10px 20px"
             closed="true" buttons="#dlg-buttons">
@@ -86,6 +86,6 @@
             width:160px;
         }
     </style>
-    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+
 </body>
 </html>
