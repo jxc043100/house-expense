@@ -1,4 +1,4 @@
-application: your-app-id
+application: house-expense
 version: 1
 runtime: python27
 api_version: 1
@@ -11,8 +11,11 @@ handlers:
 - url: /admin.*
   script: admin.application
   
+- url: /
+  script: main.application
+  
 - url: /register
-  script: admin.application
+  script: users.application
   
 - url: /transaction/.*
   script: transactioncrud.application

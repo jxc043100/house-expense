@@ -58,6 +58,8 @@ class SummaryMain(webapp2.RequestHandler):
       if user.user_id:
         user_id_to_name[user.user_id] = user.display_name
         
+    if users.get_current_user():
+      user_email = users.get_current_user().email()
     current_user = users.get_current_user()
     user_id = self.request.get('user')
     if not user_id and current_user:
@@ -92,6 +94,7 @@ class SummaryMain(webapp2.RequestHandler):
         'total_balance' : total_balance,
         'url': url,
         'url_linktext': url_linktext,
+        'user_email': user_email if user_email else '',
     }
 
     template = JINJA_ENVIRONMENT.get_template('summary.html')

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>5626 house expense app</title>
+</head>
+<body>
+    <p>{{user_email}} | <a href="{{ url|safe }}">{{ url_linktext }} </a> | <a href="/users">Users</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a></p>
+    {% if not user %}
+      <p>You are not an invited user. Please contact jxc043100@gmail.com for invitation</p>
+    {% endif %}
+</body>
+</html>

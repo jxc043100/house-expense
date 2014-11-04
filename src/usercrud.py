@@ -43,7 +43,9 @@ class List(webapp2.RequestHandler):
     
     user_array = []
     for user in all_users:
-      user_dict = {'id': user.user_id, 'email': user.email, 'display_name': user.display_name, 'user_type': user.type.name}
+      user_dict = {'id': user.user_id, 'email': user.email, 
+                   'display_name': user.display_name, 
+                   'user_type': user.type.name, 'registered':user.user_id > 0}
       user_array.append(user_dict)
     result = {}
     result['rows'] = user_array
@@ -63,17 +65,22 @@ class Upsert(webapp2.RequestHandler):
         display_name = self.request.get('display_name')
         email = self.request.get('email')
         user_type = self.request.get('user_type')
-        user_key = ndb.Key(User, current_user.email())
+        user_key = ndb.Key(User, email)
         user = user_key.get()
+        is_registration = user and (email == user.email) and not user.user_id
         if not user:
-          user = User()
-        if current_user.email == email:
-          user.user_id = current_user.user_id()
-        user.display_name = display_name
-        user.type = UserType(user_type)
-        user.email = self.request.get('email')
+          user = User(id=email, email=email, display_name=display_name, type=UserType(user_type))
+        else:
+          user.display_name = display_name
+          if (user_type):
+            user.type = UserType(user_type)
+          if is_registration:
+            user.user_id = current_user.user_id()
         user.put()
-        self.response.write(json.dumps({}))
+        if is_registration:
+          self.redirect('/transactions')
+        else:
+          self.response.write(json.dumps({}))
 
 class Delete(webapp2.RequestHandler):
 

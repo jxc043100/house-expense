@@ -6,13 +6,14 @@ import jinja2
 import webapp2
 from google.appengine.ext import ndb
 import json
-from model import Month
 from model import User
 from model import Share
 from model import Transaction
 from model import TransactionType
+from model import UserType
 from datetime import date
 from datetime import datetime
+import logging
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -61,6 +62,7 @@ class ListTransaction(webapp2.RequestHandler):
     self.response.write(json.dumps(result))
     
 def transactionToDict(transaction):
+  logging.info(str(user_id_to_name))
   ui_transaction = {}
   ui_transaction['transaction_id'] = str(transaction.key.id())
   ui_transaction['payer'] = user_id_to_name[transaction.owner_user_id]
@@ -100,6 +102,10 @@ class UpsertTransaction(webapp2.RequestHandler):
         transaction.share = []
         if transaction.type == TransactionType.PERSONAL:
           shares.append(Share(target=target_user, share=1)) 
+        elif transaction.type == TransactionType.COMMON_FOOD or transaction.type == TransactionType.COMMON_CLEANING:
+          for user in all_users:
+            if user.type == UserType.ADMIN or user.type == UserType.RESIDENT:
+              shares.append(Share(target=user.user_id, share=1)) 
         transaction.share = shares
         transaction.put()
         self.response.write(json.dumps({}))

@@ -2,7 +2,7 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Basic CRUD Application - jQuery EasyUI CRUD Demo</title>
+    <title>Transactions</title>
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
     <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/color.css">
@@ -11,7 +11,7 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
 </head>
 <body>
-    <p><a href="{{ url|safe }}">{{ url_linktext }}</a></p>
+    <p>{{user_email}} | <a href="{{ url|safe }}">{{ url_linktext }} </a> | <a href="/users">Users</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a></p>
     <table id="dg" title="All Transactions" class="easyui-datagrid" style="width:700px;height:500px"
             url="transaction/list"
             toolbar="#toolbar" pagination="true"

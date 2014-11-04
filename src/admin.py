@@ -88,6 +88,5 @@ application = webapp2.WSGIApplication([
     ('/', AdminMain),
     ('/admin', AdminMain),
     ('/admin/inviteUser', InviteUser),
-    ('/register', RegisterUser),
 
 ], debug=True)

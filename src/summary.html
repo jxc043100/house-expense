@@ -11,7 +11,7 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
 </head>
 <body>
-    <a href="{{ url|safe }}">{{ url_linktext }}</a>
+    <p>{{user_email}} | <a href="{{ url|safe }}">{{ url_linktext }} </a> | <a href="/users">Users</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a></p>
     <table id="dg" title="Your Transactions" class="easyui-datagrid" style="width:1000px;height:500px"
             url="summary/list"
             toolbar="#toolbar" pagination="true"
@@ -22,6 +22,8 @@
                 <th field="payer" width="40">Payer</th>
                 <th field="date" width="40">Date</th>
                 <th field="description" width="80">Description</th>
+                <th field="transaction_type" width="50">Type</th>
+                <th field="user" width="50">For</th>
                 <th field="total" width="20">Total</th>
                 <th field="expense" width="20">Credit</th>
                 <th field="gain" width="20">Owe</th>
@@ -31,6 +33,10 @@
     </table>
     
     <div id="toolbar">
+        <input id="user_combo" class="easyui-combobox" style="width:100px"
+                url="/summary/listUsers"
+                valueField="id" textField="text">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="searchSummary()">Search</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="pay()">Pay</a>
     </div>
     
@@ -58,10 +64,22 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
     </div>
     <script type="text/javascript">
-        function newTransaction(){
+        function pay(){
             $('#dlg').dialog('open').dialog('setTitle','New Transaction');
             $('#fm').form('clear');
         }
+        function searchSummary(){
+          var combo = $('#user_combo').combobox('getValue');
+        	$.ajax({
+        	  type: "POST",
+        	  url: 'summary/list',
+        	  dataType: 'json',
+        	  data:'user_id={user_id:' +combo +'}',    
+        	}).done(function( responseJson ){
+       	    $('#dg').datagrid('loadData', responseJson ); 
+       	  });
+        }
+        
     </script>
     <style type="text/css">
         #fm{

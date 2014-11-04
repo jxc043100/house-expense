@@ -6,10 +6,12 @@ import jinja2
 import webapp2
 from google.appengine.ext import ndb
 import json
-from model import Month
 from model import User
+from model import UserType
 from model import Share
 from model import Transaction
+from model import TransactionType
+import logging
 
 from datetime import date
 from datetime import datetime
@@ -66,25 +68,33 @@ class SummaryEntry:
     ui_transaction['expense'] = self.paid
     ui_transaction['gain'] = self.gain
     ui_transaction['balance'] = self.balance
+    ui_transaction['transaction_type'] = self.transaction.type.name
+    if self.transaction.type == TransactionType.PERSONAL:
+      ui_transaction['user'] = user_id_to_name[self.transaction.share[0].target]
     return ui_transaction
-      
+  
 class List(webapp2.RequestHandler):
   def post(self):
+    user_id = self.request.get('user_id')
     current_user = users.get_current_user()
     if current_user:
+      if not user_id:
+        user_id = current_user.user_id()
       transactions_query = Transaction.query()
       transactions = transactions_query.fetch(50)
       summary_array = []
       total_owed = 0
+      logging.info('fetching summary logs for ' + user_id)
       for transaction in transactions:
-        if transaction.owner_user_id == current_user.user_id():
-          summary_entry = SummaryEntry(current_user.user_id(), transaction)
+        logging.info('transaction owner' + transaction.owner_user_id)
+        if transaction.owner_user_id == user_id:
+          summary_entry = SummaryEntry(user_id, transaction)
           summary_array.append(summary_entry.toUiEntry())
           total_owed += summary_entry.balance
           continue
         for share in transaction.share:
-          if share.target == current_user.user_id(): 
-            summary_entry = SummaryEntry(current_user.user_id(), transaction)
+          if share.target == user_id: 
+            summary_entry = SummaryEntry(user_id, transaction)
             summary_array.append(summary_entry.toUiEntry())
             total_owed += summary_entry.balance  
       result = {}
@@ -94,6 +104,15 @@ class List(webapp2.RequestHandler):
       self.response.headers['Content-Type'] = 'application/json'
       self.response.write(json.dumps(result))
     
+class ListUsers(webapp2.RequestHandler):
+  def post(self):
+    combo_array = []
+    for user in all_users:
+      if user.type == UserType.RESIDENT or user.type == UserType.ADMIN:
+        combo_array.append({'id' :user.user_id, 'text' : user.display_name})
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.write(json.dumps(combo_array))
+      
 class Pay(webapp2.RequestHandler):
 
     def post(self):
@@ -124,5 +143,6 @@ class Pay(webapp2.RequestHandler):
 
 application = webapp2.WSGIApplication([
     ('/summary/list', List),
+    ('/summary/listUsers', ListUsers),
     ('/transaction/pay', Pay),
 ], debug=True)

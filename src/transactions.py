@@ -51,12 +51,14 @@ class TransactionsMain(webapp2.RequestHandler):
     users_query = User.query()
     all_users = users_query.fetch(20)
     user_id_to_name = {}
+    user_email = ''
     for user in all_users:
       if user.user_id:
         user_id_to_name[user.user_id] = user.display_name
     transactions_query = Transaction.query()
     transactions = transactions_query.fetch(50)
     if users.get_current_user():
+        user_email = users.get_current_user().email()
         url = users.create_logout_url(self.request.uri)
         url_linktext = 'Logout'
     else:
@@ -68,9 +70,10 @@ class TransactionsMain(webapp2.RequestHandler):
         'user_id_to_name' : user_id_to_name,
         'months': months,
         'transactions': transactions,
-        'transaction_types': [TransactionType.COMMON, TransactionType.NONRESIDENT, TransactionType.PAYMENT, TransactionType.PERSONAL, TransactionType.RENT], 
+        'transaction_types': [TransactionType.COMMON_FOOD, TransactionType.COMMON_CLEANING, TransactionType.NONRESIDENT, TransactionType.PERSONAL, TransactionType.RENT], 
         'url': url,
         'url_linktext': url_linktext,
+        'user_email': user_email
     }
 
     template = JINJA_ENVIRONMENT.get_template('transactions.html')

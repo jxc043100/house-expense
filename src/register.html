@@ -1,28 +1,52 @@
 <!DOCTYPE html>
-{% autoescape true %}
 <html>
-  <!-- [START head_html] -->
-  <head>
-    <link type="text/css" rel="stylesheet" href="/stylesheets/main.css" />
-  </head>
-  <!-- [END head_html] -->
-  <body>
-  <div>
-	  <p>Welcome to 5626 shared cost app</p>
-  </div>
-  {% if current_user %}
+<head>
+    <meta charset="UTF-8">
+    <title>Basic Form - jQuery EasyUI Demo</title>
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/demo/demo.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.min.js"></script>
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+    <p>{{user_email}} | <a href="{{ url|safe }}">{{ url_linktext }} </a> | <a href="/users">Users</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a></p>
+    <h2>Welcome to 5626 house expense app</h2>
     {% if invited_user %}
-	  <div>Enter your preferred display name {{invited_user.email}}</div>
-	  <form action="/register" method="post">
-	    Name: <input type="text" name="display_name" value="{{invited_user.display_name}}"><br>
-	    <input type="submit" value="register">
-	  </form>
-	  {% else %}
-	  <div>You have not been invited</div>
-	  {% endif %}
-  {% endif %}
-    <hr>
-    <a href="{{ url|safe }}">{{ url_linktext }}</a>
-  </body>
+    <div style="margin:20px 0;"></div>
+    <div class="easyui-panel" title="Register" style="width:400px">
+        <div style="padding:10px 60px 20px 60px">
+        <form id="ff" action="user/upsert" method="post">
+            <table cellpadding="5">
+                <tr>
+                    <td>Your Name:</td>
+                    <td><input type="hidden" name="email" value="{{invited_user.email}}"></input></td>
+                    <td><input class="easyui-textbox" type="text" value="{{invited_user.display_name}}" name="display_name" data-options="required:true"></input></td>
+                </tr>
+            </table>
+        </form>
+        <div style="text-align:center;padding:5px">
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="submitForm()">Submit</a>
+            <a href="javascript:void(0)" class="easyui-linkbutton" onclick="clearForm()">Clear</a>
+        </div>
+        </div>
+    </div>
+    {% endif %}
+    <script>
+        function submitForm(){
+            $('#ff').form('submit');
+        }
+        function clearForm(){
+            $('#ff').form('clear');
+        }
+        $(function(){
+            $('#ff').form({
+                success:function(data){
+                    window.location.href = '/transactions';
+                }
+            });
+        });
+    </script>
+</body>
 </html>
-{% endautoescape %}
