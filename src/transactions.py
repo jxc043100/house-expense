@@ -5,6 +5,7 @@ from google.appengine.api import users
 import json
 import jinja2
 import webapp2
+import util
 from model import TransactionType
 from model import User
 from model import Transaction
@@ -21,12 +22,6 @@ month = datetime.today().month
 year = datetime.today().year
 months = []
 month_to_add = datetime(year, month, 1)
-users_query = User.query()
-all_users = users_query.fetch(20)
-user_id_to_name = {}
-for user in all_users:
-  if user.user_id:
-    user_id_to_name[user.user_id] = user.display_name
         
 while month_to_add > start_date:
   months.append(month_to_add)
@@ -50,11 +45,7 @@ class TransactionsMain(webapp2.RequestHandler):
   def get(self):
     users_query = User.query()
     all_users = users_query.fetch(20)
-    user_id_to_name = {}
     user_email = ''
-    for user in all_users:
-      if user.user_id:
-        user_id_to_name[user.user_id] = user.display_name
     transactions_query = Transaction.query()
     transactions = transactions_query.fetch(50)
     if users.get_current_user():
@@ -67,10 +58,10 @@ class TransactionsMain(webapp2.RequestHandler):
 
     template_values = {
         'users': all_users,
-        'user_id_to_name' : user_id_to_name,
+        'user_id_to_name' : util.getUserToDisplayNames(),
         'months': months,
         'transactions': transactions,
-        'transaction_types': [TransactionType.COMMON_FOOD, TransactionType.COMMON_CLEANING, TransactionType.NONRESIDENT, TransactionType.PERSONAL, TransactionType.RENT], 
+        'transaction_types': [TransactionType.COMMON_FOOD, TransactionType.COMMON_CLEANING, TransactionType.NONRESIDENT, TransactionType.PERSONAL], 
         'url': url,
         'url_linktext': url_linktext,
         'user_email': user_email

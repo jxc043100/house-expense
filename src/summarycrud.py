@@ -4,6 +4,7 @@ from google.appengine.api import users
 
 import jinja2
 import webapp2
+import util
 from google.appengine.ext import ndb
 import json
 from model import User
@@ -26,12 +27,6 @@ month = datetime.today().month
 year = datetime.today().year
 months = []
 month_to_add = datetime(year, month, 1)
-users_query = User.query()
-all_users = users_query.fetch(20)
-user_id_to_name = {}
-for user in all_users:
-  if user.user_id:
-    user_id_to_name[user.user_id] = user.display_name
         
 while month_to_add > start_date:
   months.append(month_to_add)
@@ -59,7 +54,7 @@ class SummaryEntry:
         self.gain = self.total_paid / len(transaction.share)
     self.balance = self.paid - self.gain
     
-  def toUiEntry(self):
+  def toUiEntry(self, user_id_to_name):
     ui_transaction = {}
     ui_transaction['payer'] = user_id_to_name[self.payer_id]
     ui_transaction['date'] = self.date.strftime('%m/%d/%Y')
@@ -76,6 +71,13 @@ class SummaryEntry:
 class List(webapp2.RequestHandler):
   def post(self):
     user_id = self.request.get('user_id')
+    month_begin_str = self.request.get('month')
+    if month_begin_str:
+      month_begin = datetime.strptime(month_begin_str,"%m/%d/%Y")
+    else:
+      month_begin = datetime(datetime.today().year, datetime.today().month, 1)
+      
+    user_id_to_name = util.getUserToDisplayNames()
     current_user = users.get_current_user()
     if current_user:
       if not user_id:
@@ -86,17 +88,10 @@ class List(webapp2.RequestHandler):
       total_owed = 0
       logging.info('fetching summary logs for ' + user_id)
       for transaction in transactions:
-        logging.info('transaction owner' + transaction.owner_user_id)
-        if transaction.owner_user_id == user_id:
+        if isApplicableTransaction(transaction, user_id, month_begin):
           summary_entry = SummaryEntry(user_id, transaction)
-          summary_array.append(summary_entry.toUiEntry())
+          summary_array.append(summary_entry.toUiEntry(user_id_to_name))
           total_owed += summary_entry.balance
-          continue
-        for share in transaction.share:
-          if share.target == user_id: 
-            summary_entry = SummaryEntry(user_id, transaction)
-            summary_array.append(summary_entry.toUiEntry())
-            total_owed += summary_entry.balance  
       result = {}
       result['rows'] = summary_array
       result['total'] = len(summary_array)
@@ -104,12 +99,32 @@ class List(webapp2.RequestHandler):
       self.response.headers['Content-Type'] = 'application/json'
       self.response.write(json.dumps(result))
     
+def isApplicableTransaction(transaction, user_id, month_begin):
+  isApplicableUser = False
+  if transaction.owner_user_id == user_id:
+    isApplicableUser = True
+  for share in transaction.share:
+    if share.target == user_id:
+      isApplicableUser = True
+      
+  month_end = datetime(month_begin.year + (month_begin.month / 12), 
+                       ((month_begin.month % 12) + 1), 1)
+  isApplicableMonth = False
+  if transaction.date >= month_begin and transaction.date < month_end:
+    isApplicableMonth = True
+    
+  return isApplicableUser and isApplicableMonth
+
 class ListUsers(webapp2.RequestHandler):
   def post(self):
+    current_user = users.get_current_user()
     combo_array = []
-    for user in all_users:
+    for user in util.getAllUsers():
       if user.type == UserType.RESIDENT or user.type == UserType.ADMIN:
-        combo_array.append({'id' :user.user_id, 'text' : user.display_name})
+        user_dict = {'id' :user.user_id, 'text' : user.display_name}
+        if current_user and current_user.user_id() == user.user_id:
+          user_dict['selected'] = True
+        combo_array.append(user_dict)
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(combo_array))
       

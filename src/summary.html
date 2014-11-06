@@ -33,6 +33,9 @@
     </table>
     
     <div id="toolbar">
+        <input id="month_combo" class="easyui-combobox" style="width:120px"
+                url="/transaction/listMonths"
+                valueField="id" textField="text">
         <input id="user_combo" class="easyui-combobox" style="width:100px"
                 url="/summary/listUsers"
                 valueField="id" textField="text">
@@ -69,12 +72,13 @@
             $('#fm').form('clear');
         }
         function searchSummary(){
-          var combo = $('#user_combo').combobox('getValue');
+          var user_id = $('#user_combo').combobox('getValue');
+          var month_id = $('#month_combo').combobox('getValue');
         	$.ajax({
         	  type: "POST",
         	  url: 'summary/list',
         	  dataType: 'json',
-        	  data:'user_id={user_id:' +combo +'}',    
+        	  data:'user_id='+user_id+'&month=' + month_id,    
         	}).done(function( responseJson ){
        	    $('#dg').datagrid('loadData', responseJson ); 
        	  });

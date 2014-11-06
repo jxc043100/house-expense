@@ -13,6 +13,7 @@ from model import TransactionType
 from model import UserType
 from datetime import date
 from datetime import datetime
+import util
 import logging
 
 JINJA_ENVIRONMENT = jinja2.Environment(
@@ -20,49 +21,54 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-start_date = datetime.strptime("08-01-2014","%m-%d-%Y")
-month = datetime.today().month
-year = datetime.today().year
-months = []
-month_to_add = datetime(year, month, 1)
-users_query = User.query()
-all_users = users_query.fetch(20)
-user_id_to_name = {}
-for user in all_users:
-  if user.user_id:
-    user_id_to_name[user.user_id] = user.display_name
-        
-while month_to_add > start_date:
-  months.append(month_to_add)
-  if (month == 1):
-    month = 12
-    year = year -1
-  else:
-    month = month - 1
-  month_to_add = datetime(year, month, 1)
-
 class ListTransaction(webapp2.RequestHandler):
   def post(self):
-    users_query = User.query()
-    all_users = users_query.fetch(20)
-    user_id_to_name = {}
-    for user in all_users:
-      if user.user_id:
-        user_id_to_name[user.user_id] = user.display_name
+    month_begin_str = self.request.get('month')
+    if month_begin_str:
+      month_begin = datetime.strptime(month_begin_str,"%m/%d/%Y")
+    else:
+      month_begin = datetime(datetime.today().year, datetime.today().month, 1)
+    month_end = datetime(month_begin.year + (month_begin.month / 12), ((month_begin.month % 12) + 1), 1)
+    user_id_to_name = util.getUserToDisplayNames()
     transactions_query = Transaction.query()
     transactions = transactions_query.fetch(50)
 
-    self.response.headers['Content-Type'] = 'application/json'
     transaction_array = []
     for transaction in transactions:
-      transaction_array.append(transactionToDict(transaction))
+      if transaction.owner_user_id in user_id_to_name.keys():
+        if transaction.date >= month_begin and transaction.date < month_end:
+          transaction_array.append(transactionToDict(transaction, user_id_to_name))
     result = {}
     result['rows'] = transaction_array
     result['total'] = len(transaction_array)
+    
+    self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(result))
     
-def transactionToDict(transaction):
-  logging.info(str(user_id_to_name))
+class ListMonths(webapp2.RequestHandler):
+  def post(self):
+    months_array = []
+    start_date = datetime.strptime("09-01-2014","%m-%d-%Y")
+    month = datetime.today().month
+    year = datetime.today().year
+    month_to_add = datetime(year, month, 1)
+    months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
+                         'text' : month_to_add.strftime('%B %Y'),
+                         'selected' : True})
+    while month_to_add > start_date:
+      if (month == 1):
+        month = 12
+        year = year -1
+      else:
+        month = month - 1
+      month_to_add = datetime(year, month, 1)
+      months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
+                           'text' : month_to_add.strftime('%B %Y')})
+  
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.write(json.dumps(months_array))
+
+def transactionToDict(transaction, user_id_to_name):
   ui_transaction = {}
   ui_transaction['transaction_id'] = str(transaction.key.id())
   ui_transaction['payer'] = user_id_to_name[transaction.owner_user_id]
@@ -103,7 +109,7 @@ class UpsertTransaction(webapp2.RequestHandler):
         if transaction.type == TransactionType.PERSONAL:
           shares.append(Share(target=target_user, share=1)) 
         elif transaction.type == TransactionType.COMMON_FOOD or transaction.type == TransactionType.COMMON_CLEANING:
-          for user in all_users:
+          for user in util.getAllUsers():
             if user.type == UserType.ADMIN or user.type == UserType.RESIDENT:
               shares.append(Share(target=user.user_id, share=1)) 
         transaction.share = shares
@@ -123,4 +129,5 @@ application = webapp2.WSGIApplication([
     ('/transaction/list', ListTransaction),
     ('/transaction/upsert', UpsertTransaction),
     ('/transaction/delete', DeleteTransaction),
+    ('/transaction/listMonths', ListMonths),
 ], debug=True)

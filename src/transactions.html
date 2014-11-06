@@ -28,6 +28,10 @@
         </thead>
     </table>
     <div id="toolbar">
+        <input id="month_combo" class="easyui-combobox" style="width:120px"
+                url="/transaction/listMonths"
+                valueField="id" textField="text">
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="searchMonth()">Search</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newTransaction()">New Transaction</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editTransaction()">Edit Transaction</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteTransaction()">Remove Transaction</a>
@@ -73,7 +77,17 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
     </div>
     <script type="text/javascript">
-        var url;
+        function searchMonth(){
+          var month = $('#month_combo').combobox('getValue');
+          $.ajax({
+            type: "POST",
+            url: 'transaction/list',
+            dataType: 'json',
+            data:'month='+month,    
+          }).done(function( responseJson ){
+            $('#dg').datagrid('loadData', responseJson ); 
+          });
+        }
         function newTransaction(){
             $('#dlg').dialog('open').dialog('setTitle','New Transaction');
             $('#fm').form('clear');

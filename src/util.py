@@ -18,3 +18,16 @@ def can_view(transaction, user):
     return True
   else:
     return transaction.type != TransactionType.RENT
+  
+def getUserToDisplayNames():
+  all_users = getAllUsers()
+  user_id_to_name = {}
+  for user in all_users:
+    if user.user_id:
+      user_id_to_name[user.user_id] = user.display_name
+  return user_id_to_name
+
+def getAllUsers():
+  users_query = User.query()
+  return users_query.fetch(20)
+    
