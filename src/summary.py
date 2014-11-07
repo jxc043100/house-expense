@@ -4,32 +4,15 @@ from google.appengine.api import users
 
 import jinja2
 import webapp2
+import util
 from model import User
-from model import Share
 from model import Transaction
 
-from datetime import date
-from datetime import datetime
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
-
-start_date = datetime.strptime("08-01-2014","%m-%d-%Y")
-month = datetime.today().month
-year = datetime.today().year
-months = []
-month_to_add = datetime(year, month, 1)
-
-while month_to_add > start_date:
-  months.append(month_to_add)
-  if (month == 1):
-    month = 12
-    year = year -1
-  else:
-    month = month - 1
-  month_to_add = datetime(year, month, 1)
 
 class SummaryEntry:
   def __init__(self, user_id, transaction):
@@ -79,22 +62,13 @@ class SummaryMain(webapp2.RequestHandler):
     total_balance = 0      
     for summary_entry in summary_entries:
       total_balance +=summary_entry.balance
-    if users.get_current_user():
-        url = users.create_logout_url(self.request.uri)
-        url_linktext = 'Logout'
-    else:
-        url = users.create_login_url(self.request.uri)
-        url_linktext = 'Login'
 
     template_values = {
         'user_id' : user_id,
         'user_id_to_name' : user_id_to_name,
-        'months': months,
         'entries': summary_entries,
         'total_balance' : total_balance,
-        'url': url,
-        'url_linktext': url_linktext,
-        'user_email': user_email if user_email else '',
+        'header' : util.PageHeader(self.request.uri),
     }
 
     template = JINJA_ENVIRONMENT.get_template('summary.html')

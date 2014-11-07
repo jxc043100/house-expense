@@ -30,4 +30,16 @@ def getUserToDisplayNames():
 def getAllUsers():
   users_query = User.query()
   return users_query.fetch(20)
+
+class PageHeader():
+  def __init__(self, current_uri):
+    current_user = users.get_current_user()
+    if current_user:
+        self.url = users.create_logout_url('/users')
+        self.url_linktext = 'Logout'
+        self.user_email = current_user.email()
+    else:
+        self.url = users.create_login_url(current_uri)
+        self.url_linktext = 'You must login first'
+        self.user_email = ''
     
