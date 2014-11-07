@@ -1,5 +1,5 @@
 indexes:
-- kind: Greeting
+- kind: Transaction
   ancestor: yes
   properties:
   - name: date

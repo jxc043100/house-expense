@@ -7,33 +7,32 @@ threadsafe: true
 handlers:
 - url: /stylesheets
   static_dir: stylesheets
-
-- url: /admin.*
-  script: admin.application
   
 - url: /
-  script: main.application
+  script: pages.application
   
+- url: /users
+  script: pages.application
+
 - url: /register
-  script: users.application
+  script: pages.application
   
+- url: /transactions
+  script: pages.application
+  
+- url: /summary
+  script: pages.application
+
 - url: /transaction/.*
   script: transactioncrud.application
 
 - url: /summary/.*
   script: summarycrud.application
 
-- url: /transactions
-  script: transactions.application
-  
-- url: /summary.*
-  script: summary.application
-
 - url: /user/.*
   script: usercrud.application
 
-- url: /users
-  script: users.application
+
 
 libraries:
 - name: webapp2

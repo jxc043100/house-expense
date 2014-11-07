@@ -79,25 +79,24 @@ class List(webapp2.RequestHandler):
       
     user_id_to_name = util.getUserToDisplayNames()
     current_user = users.get_current_user()
-    if current_user:
-      if not user_id:
-        user_id = current_user.user_id()
-      transactions_query = Transaction.query()
-      transactions = transactions_query.fetch(50)
-      summary_array = []
-      total_owed = 0
-      logging.info('fetching summary logs for ' + user_id)
-      for transaction in transactions:
-        if isApplicableTransaction(transaction, user_id, month_begin):
-          summary_entry = SummaryEntry(user_id, transaction)
-          summary_array.append(summary_entry.toUiEntry(user_id_to_name))
-          total_owed += summary_entry.balance
-      result = {}
-      result['rows'] = summary_array
-      result['total'] = len(summary_array)
-      result['footer'] = [{"description":"Total Balance: " + str(total_owed)}]
-      self.response.headers['Content-Type'] = 'application/json'
-      self.response.write(json.dumps(result))
+    if current_user and not user_id:
+      user_id = current_user.user_id()
+    transactions_query = Transaction.query()
+    transactions = transactions_query.fetch(50)
+    summary_array = []
+    total_owed = 0
+    logging.info('fetching summary logs for ' + user_id)
+    for transaction in transactions:
+      if isApplicableTransaction(transaction, user_id, month_begin):
+        summary_entry = SummaryEntry(user_id, transaction)
+        summary_array.append(summary_entry.toUiEntry(user_id_to_name))
+        total_owed += summary_entry.balance
+    result = {}
+    result['rows'] = summary_array
+    result['total'] = len(summary_array)
+    result['footer'] = [{"description":"Total Balance: " + str(total_owed)}]
+    self.response.headers['Content-Type'] = 'application/json'
+    self.response.write(json.dumps(result))
     
 def isApplicableTransaction(transaction, user_id, month_begin):
   isApplicableUser = False

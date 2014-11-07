@@ -26,9 +26,11 @@
         </thead>
     </table>
     <div id="toolbar">
+      {% if header.invited_user %}
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteUser()">Remove User</a>
+      {% endif %}
     </div>
     
     <div id="dlg" class="easyui-dialog" style="width:400px;height:400px;padding:10px 20px"

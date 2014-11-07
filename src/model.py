@@ -2,16 +2,13 @@ from protorpc import messages
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import msgprop
 
-def transaction_key(entry_id):
-    """Constructs a Datastore key for a Guestbook entity with guestbook_name."""
-    return ndb.Key('Purchase', entry_id)
-
 class UserType(messages.Enum):
   RESIDENT = 1
   NONRESIDENT = 2
   ADMIN = 3
   
 class User(ndb.Model):
+  """Models a user invited to use the app."""
   user_id = ndb.StringProperty(indexed=True)
   email = ndb.StringProperty(indexed=True)
   display_name = ndb.StringProperty(indexed=False)
@@ -42,20 +39,4 @@ class Transaction(ndb.Model):
   date = ndb.DateTimeProperty()
   description = ndb.StringProperty(indexed=True)
   total = ndb.FloatProperty(indexed=False)
-  share = ndb.StructuredProperty(Share, repeated=True)
-  
-
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
+  share = ndb.StructuredProperty(Share, repeated=True)    

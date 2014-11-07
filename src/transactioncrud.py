@@ -1,20 +1,20 @@
+"""
+This module contains the RequestHandlers to serve json responses needed by
+the transaction page.
+"""
+
 import os
-
 from google.appengine.api import users
-
 import jinja2
 import webapp2
 from google.appengine.ext import ndb
 import json
-from model import User
 from model import Share
 from model import Transaction
 from model import TransactionType
 from model import UserType
-from datetime import date
 from datetime import datetime
 import util
-import logging
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -38,10 +38,7 @@ class ListTransaction(webapp2.RequestHandler):
       if transaction.owner_user_id in user_id_to_name.keys():
         if transaction.date >= month_begin and transaction.date < month_end:
           transaction_array.append(transactionToDict(transaction, user_id_to_name))
-    result = {}
-    result['rows'] = transaction_array
-    result['total'] = len(transaction_array)
-    
+    result = {'rows' : transaction_array, 'total' : len(transaction_array)}
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(result))
     
@@ -56,11 +53,8 @@ class ListMonths(webapp2.RequestHandler):
                          'text' : month_to_add.strftime('%B %Y'),
                          'selected' : True})
     while month_to_add > start_date:
-      if (month == 1):
-        month = 12
-        year = year -1
-      else:
-        month = month - 1
+      month = 12 if month == 1 else month - 1
+      year = year - 1 if month == 1 else year
       month_to_add = datetime(year, month, 1)
       months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
                            'text' : month_to_add.strftime('%B %Y')})

@@ -38,6 +38,8 @@ class PageHeader():
         self.url = users.create_logout_url('/users')
         self.url_linktext = 'Logout'
         self.user_email = current_user.email()
+        invited_user = User.get_by_id(current_user.email())
+        self.invited_user = invited_user
     else:
         self.url = users.create_login_url(current_uri)
         self.url_linktext = 'You must login first'
