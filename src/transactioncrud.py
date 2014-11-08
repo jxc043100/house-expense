@@ -102,7 +102,9 @@ class UpsertTransaction(webapp2.RequestHandler):
         transaction.share = []
         if transaction.type == TransactionType.PERSONAL:
           shares.append(Share(target=target_user, share=1)) 
-        elif transaction.type == TransactionType.COMMON_FOOD or transaction.type == TransactionType.COMMON_CLEANING:
+        elif (transaction.type == TransactionType.COMMON_FOOD or 
+              transaction.type == TransactionType.COMMON_CLEANING or 
+              transaction.type == TransactionType.NONRESIDENT):
           for user in util.getAllUsers():
             if user.type == UserType.ADMIN or user.type == UserType.RESIDENT:
               shares.append(Share(target=user.user_id, share=1)) 

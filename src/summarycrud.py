@@ -22,21 +22,6 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     extensions=['jinja2.ext.autoescape'],
     autoescape=True)
 
-start_date = datetime.strptime("08-01-2014","%m-%d-%Y")
-month = datetime.today().month
-year = datetime.today().year
-months = []
-month_to_add = datetime(year, month, 1)
-        
-while month_to_add > start_date:
-  months.append(month_to_add)
-  if (month == 1):
-    month = 12
-    year = year -1
-  else:
-    month = month - 1
-  month_to_add = datetime(year, month, 1)
-
 class SummaryEntry:
   def __init__(self, user_id, transaction):
     self.user_id = user_id
@@ -51,7 +36,10 @@ class SummaryEntry:
       self.paid = self.total_paid
     for share in transaction.share:
       if share.target == user_id:
-        self.gain = self.total_paid / len(transaction.share)
+        if transaction.type == TransactionType.NONRESIDENT:
+          self.paid = self.total_paid / len(transaction.share)
+        else:
+          self.gain = self.total_paid / len(transaction.share)
     self.balance = self.paid - self.gain
     
   def toUiEntry(self, user_id_to_name):
@@ -85,7 +73,6 @@ class List(webapp2.RequestHandler):
     transactions = transactions_query.fetch(50)
     summary_array = []
     total_owed = 0
-    logging.info('fetching summary logs for ' + user_id)
     for transaction in transactions:
       if isApplicableTransaction(transaction, user_id, month_begin):
         summary_entry = SummaryEntry(user_id, transaction)
