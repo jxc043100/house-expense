@@ -53,8 +53,8 @@ class ListMonths(webapp2.RequestHandler):
                          'text' : month_to_add.strftime('%B %Y'),
                          'selected' : True})
     while month_to_add > start_date:
-      month = 12 if month == 1 else month - 1
       year = year - 1 if month == 1 else year
+      month = 12 if month == 1 else month - 1
       month_to_add = datetime(year, month, 1)
       months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
                            'text' : month_to_add.strftime('%B %Y')})

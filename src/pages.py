@@ -35,8 +35,10 @@ class Main(webapp2.RequestHandler):
       user = user_key.get()
       if user and user.user_id:
           self.redirect('/transactions')
+          return
       if user and not user.user_id:
           self.redirect('/register')
+          return
 
     template_values = {
         'header' : util.PageHeader(self.request.uri),
@@ -52,12 +54,15 @@ class UsersPage(webapp2.RequestHandler):
   """
   
   def get(self):
-
+    header = util.PageHeader(self.request.uri)   
     template_values = {
-        'header' : util.PageHeader(self.request.uri),
+        'header' : header,
         'user_types': [UserType.ADMIN, UserType.NONRESIDENT, UserType.RESIDENT], 
     }
-
+    
+    if not header.logged_in:
+        self.redirect('/')
+        return
     template = JINJA_ENVIRONMENT.get_template('user.html')
     self.response.write(template.render(template_values))
 
@@ -93,6 +98,9 @@ class TransactionsPage(webapp2.RequestHandler):
         'user_id_to_name' : util.getUserToDisplayNames(),
     }
     
+    if not header.logged_in:
+      self.redirect('/')
+      return
     if header.invited_user.type == UserType.NONRESIDENT:
       template_values['transaction_types'] = [TransactionType.NONRESIDENT]
     else:
@@ -110,12 +118,14 @@ class SummaryPage(webapp2.RequestHandler):
   """
   
   def get(self):
-
+    header = util.PageHeader(self.request.uri)
     template_values = {
         'user_id_to_name' : util.getUserToDisplayNames(),
-        'header' : util.PageHeader(self.request.uri),
+        'header' : header,
     }
-
+    if not header.logged_in:
+        self.redirect('/')
+        return
     template = JINJA_ENVIRONMENT.get_template('summary.html')
     self.response.write(template.render(template_values))
 
