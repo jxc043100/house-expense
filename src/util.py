@@ -42,6 +42,7 @@ class PageHeader():
         invited_user = User.get_by_id(current_user.email())
         self.invited_user = invited_user
         self.is_admin = users.is_current_user_admin()
+        self.type = invited_user.type.name
     else:
         self.url = users.create_login_url(current_uri)
         self.url_linktext = 'You must login first'
