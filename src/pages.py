@@ -96,6 +96,8 @@ class TransactionsPage(webapp2.RequestHandler):
     template_values = {
         'header' : header,
         'user_id_to_name' : util.getUserToDisplayNames(),
+        'current_user_id' : users.get_current_user().user_id(),
+        'current_user_is_admin' : header.is_admin
     }
     
     if not header.logged_in:

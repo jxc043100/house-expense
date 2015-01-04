@@ -34,8 +34,8 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="searchMonth()">Search</a>
       {% if header.invited_user %}
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newTransaction()">New Transaction</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editTransaction()">Edit Transaction</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteTransaction()">Remove Transaction</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="edit" iconCls="icon-edit" plain="true" onclick="editTransaction()">Edit Transaction</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" id="remove" iconCls="icon-remove" plain="true" onclick="deleteTransaction()">Remove Transaction</a>
       {% endif %}
     </div>
     
@@ -79,6 +79,26 @@
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
     </div>
     <script type="text/javascript">
+    	$('#edit').hide();
+	    $('#remove').hide();
+	    $(function(){
+          $('#dg').datagrid({
+	        onClickRow:function(rowIndex){
+	          var row = $('#dg').datagrid('getSelected');
+	          if ({% if current_user_is_admin %} true || {% endif %} row.payer_id == {{ current_user_id }})
+	          {
+	            $('#edit').show();
+	            $('#remove').show();
+	          }
+	          else
+	          {
+	            $('#edit').hide();
+	            $('#remove').hide();
+	          }
+	        }
+          })
+	    });
+        
         function searchMonth(){
           var month = $('#month_combo').combobox('getValue');
           $.ajax({
