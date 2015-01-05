@@ -140,10 +140,31 @@ class SummaryPage(webapp2.RequestHandler):
     template = JINJA_ENVIRONMENT.get_template('summary.html')
     self.response.write(template.render(template_values))
 
+class MonthlySummaryPage(webapp2.RequestHandler):
+  """Monthly Summary page at '/monthlysummary'. 
+  Will render the monthly summary table
+  """
+  
+  def get(self):
+    header = util.PageHeader(self.request.uri)
+    
+    if not header.logged_in:
+        self.redirect('/')
+        return
+    
+    template_values = {
+        'user_id_to_name' : util.getUserToDisplayNames(),
+        'header' : header,
+    }
+
+    template = JINJA_ENVIRONMENT.get_template('monthlysummary.html')
+    self.response.write(template.render(template_values))
+    
 application = webapp2.WSGIApplication([
     ('/', Main),
     ('/summary', SummaryPage),
     ('/transactions', TransactionsPage),
     ('/users', UsersPage),
     ('/register', RegisterPage),
+    ('/monthlysummary', MonthlySummaryPage),
 ], debug=True)

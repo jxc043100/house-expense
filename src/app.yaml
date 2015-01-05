@@ -22,6 +22,9 @@ handlers:
   
 - url: /summary
   script: pages.application
+  
+- url: /monthlysummary
+  script: pages.application
 
 - url: /transaction/.*
   script: transactioncrud.application

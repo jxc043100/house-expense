@@ -13,6 +13,7 @@ from model import Share
 from model import Transaction
 from model import TransactionType
 import logging
+from transactioncrud import getMonths
 
 from datetime import date
 from datetime import datetime
@@ -142,8 +143,34 @@ class Pay(webapp2.RequestHandler):
         transaction.put()
         self.response.write(json.dumps({}))
 
+class MonthlySummary(webapp2.RequestHandler):
+    
+    def post(self):
+        summaries = []
+        months = getMonths()
+        transactions_query = Transaction.query()
+        transactions = transactions_query.fetch(50)
+        num_users = len(util.getAllUsers())
+        
+        for month in months:
+            month_begin = datetime.strptime(month['id'],"%m/%d/%Y")
+            month_end = datetime(month_begin.year + (month_begin.month / 12), ((month_begin.month % 12) + 1), 1)
+            sum_food_cost = 0
+            for transaction in transactions:
+                if transaction.type == TransactionType.COMMON_FOOD and transaction.date >= month_begin and transaction.date < month_end:
+                    sum_food_cost += transaction.total
+            sum_utility_cost = 0
+            for transaction in transactions:
+                if transaction.type == TransactionType.COMMON_CLEANING and transaction.date >= month_begin and transaction.date < month_end:
+                    sum_utility_cost += transaction.total
+            summaries.append({'month' : month['text'],
+                              'food_cost_per_person' : sum_food_cost / num_users,
+                              'utility_cost_per_person' : sum_utility_cost / num_users})
+        
+        self.response.write(json.dumps(summaries))
 application = webapp2.WSGIApplication([
     ('/summary/list', List),
     ('/summary/listUsers', ListUsers),
     ('/transaction/pay', Pay),
+    ('/summary/monthly', MonthlySummary),
 ], debug=True)

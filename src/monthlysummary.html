@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Monthly Summary</title>
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/default/easyui.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/icon.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/themes/color.css">
+    <link rel="stylesheet" type="text/css" href="http://www.jeasyui.com/easyui/demo/demo.css">
+    <script type="text/javascript" src="http://code.jquery.com/jquery-1.6.min.js"></script>
+    <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
+</head>
+<body>
+    <p>{{header.user_email}} | <a href="{{ header.url|safe }}">{{ header.url_linktext }} </a> | <a href="/users">Users</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a> | <a href="/monthlysummary">Monthly Summary</a></p>
+    <table id="dg" title="Monthly Summary" class="easyui-datagrid" style="width:600px;height:500px"
+            url="summary/monthly"
+            rownumbers="false" fitColumns="true" singleSelect="true" showFooter="true">
+        <thead>
+            <tr>
+                <th field="month" width="40">Month</th>
+                <th field="food_cost_per_person" width="60">Food Cost Per Person</th>
+                <th field="utility_cost_per_person" width="60">Utility Cost Per Person</th>
+            </tr>
+        </thead>
+    </table>
+    
+    <script type="text/javascript">
+
+        
+    </script>
+    <style type="text/css">
+        #fm{
+            margin:0;
+            padding:10px 30px;
+        }
+        .ftitle{
+            font-size:14px;
+            font-weight:bold;
+            padding:5px 0;
+            margin-bottom:10px;
+            border-bottom:1px solid #ccc;
+        }
+        .fitem{
+            margin-bottom:5px;
+        }
+        .fitem label{
+            display:inline-block;
+            width:100px;
+        }
+        .fitem input{
+            width:160px;
+        }
+    </style>
+
+</body>
+</html>
