@@ -22,25 +22,15 @@ JINJA_ENVIRONMENT = jinja2.Environment(
     autoescape=True)
 
 class ListTransaction(webapp2.RequestHandler):
-  def post(self):
-    month_begin_str = self.request.get('month')
-    if month_begin_str:
-      month_begin = datetime.strptime(month_begin_str,"%m/%d/%Y")
-    else:
-      month_begin = datetime(datetime.today().year, datetime.today().month, 1)
-    month_end = datetime(month_begin.year + (month_begin.month / 12), ((month_begin.month % 12) + 1), 1)
-    user_id_to_name = util.getUserToDisplayNames()
-    transactions_query = Transaction.query()
-    transactions = transactions_query.fetch(50)
-
-    transaction_array = []
-    for transaction in transactions:
-      if transaction.owner_user_id in user_id_to_name.keys():
-        if transaction.date >= month_begin and transaction.date < month_end:
-          transaction_array.append(transactionToDict(transaction, user_id_to_name))
-    result = {'rows' : transaction_array, 'total' : len(transaction_array)}
-    self.response.headers['Content-Type'] = 'application/json'
-    self.response.write(json.dumps(result))
+    def post(self):
+        user_id_to_name = util.getUserToDisplayNames()
+        transactions = util.getTransactions(self.request.get('month'))
+        transaction_array = []
+        for transaction in transactions:
+            transaction_array.append(transactionToDict(transaction, user_id_to_name))
+        result = {'rows' : transaction_array, 'total' : len(transaction_array)}
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(result))
     
 class ListMonths(webapp2.RequestHandler):
   def post(self):
