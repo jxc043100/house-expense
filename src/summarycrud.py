@@ -72,22 +72,15 @@ class SummaryEntry:
 class List(webapp2.RequestHandler):
   def post(self):
     user_id = self.request.get('user_id')
-    month_begin_str = self.request.get('month')
-    if month_begin_str:
-      month_begin = datetime.strptime(month_begin_str,"%m/%d/%Y")
-    else:
-      month_begin = datetime(datetime.today().year, datetime.today().month, 1)
-      
     user_id_to_name = util.getUserToDisplayNames()
     current_user = users.get_current_user()
     if current_user and not user_id:
       user_id = current_user.user_id()
-    transactions_query = Transaction.query()
-    transactions = transactions_query.fetch(50)
+    transactions = util.getTransactions(self.request.get('month'))
     summary_array = []
     total_owed = 0
     for transaction in transactions:
-      if isApplicableTransaction(transaction, user_id, month_begin):
+      if isApplicableTransaction(transaction, user_id):
         summary_entry = SummaryEntry(user_id, transaction)
         summary_array.append(summary_entry.toUiEntry(user_id_to_name))
         total_owed += summary_entry.balance
@@ -98,21 +91,13 @@ class List(webapp2.RequestHandler):
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(result))
     
-def isApplicableTransaction(transaction, user_id, month_begin):
-  isApplicableUser = False
-  if transaction.owner_user_id == user_id:
-    isApplicableUser = True
-  for share in transaction.share:
-    if share.target == user_id:
-      isApplicableUser = True
-      
-  month_end = datetime(month_begin.year + (month_begin.month / 12), 
-                       ((month_begin.month % 12) + 1), 1)
-  isApplicableMonth = False
-  if transaction.date >= month_begin and transaction.date < month_end:
-    isApplicableMonth = True
-    
-  return isApplicableUser and isApplicableMonth
+def isApplicableTransaction(transaction, user_id):
+    if transaction.owner_user_id == user_id:
+        return True
+    for share in transaction.share:
+        if share.target == user_id:
+            return True
+    return False
 
 class ListUsers(webapp2.RequestHandler):
   def post(self):

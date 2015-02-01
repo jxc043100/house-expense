@@ -47,6 +47,7 @@ class PageHeader():
         self.is_admin = users.is_current_user_admin()
         invited_user = User.get_by_id(current_user.email())
         self.invited_user = invited_user
+        self.is_admin = users.is_current_user_admin()
         if invited_user:
             self.type = invited_user.type.name
     else:
@@ -55,3 +56,12 @@ class PageHeader():
         self.logged_in = False
         self.user_email = ''
     
+def getTransactions(month_begin_str=False):
+    if month_begin_str:
+        month_begin = datetime.strptime(month_begin_str,"%m/%d/%Y")
+    else:
+        month_begin = datetime(datetime.today().year, datetime.today().month, 1)
+    month_end = datetime(month_begin.year + (month_begin.month / 12), ((month_begin.month % 12) + 1), 1)
+    transactions_query = Transaction.query(ndb.AND(Transaction.date >= month_begin,Transaction.date < month_end))
+    transactions_query.order(Transaction.date)    
+    return transactions_query.fetch()
