@@ -2,6 +2,7 @@
 This module contains the RequestHandlers to serve json responses needed by
 the users page.
 """
+from calendar import month
 
 __author__ = 'jxc043100@gmail.com (Jiayun Chen)'
 
@@ -14,6 +15,7 @@ import json
 import util
 from model import User
 from model import UserType
+
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -67,6 +69,7 @@ class Delete(webapp2.RequestHandler):
           user = user_key.get()
           user.key.delete()
         self.response.write(json.dumps({'success' : 1}))
+        
 
 application = webapp2.WSGIApplication([
     ('/user/list', List),

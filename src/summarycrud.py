@@ -12,6 +12,7 @@ from model import UserType
 from model import Share
 from model import Transaction
 from model import TransactionType
+from model import Month
 import logging
 from transactioncrud import getMonths
 
@@ -44,12 +45,23 @@ class SummaryEntry:
     self.balance = self.paid - self.gain
     
   def toUiEntry(self, user_id_to_name):
+    """
+    total_days = 0
+    user_days = 0
+    resident_count = 0
+    month = Month.get_by_id(self.date.strftime('%B %Y'))
+    for resident in month.residents:
+        total_days += resident.days
+        resident_count += 1
+        if User.get_by_id(self.user_id).email == resident.user_email:
+            user_days = resident.days
+    """
     ui_transaction = {}
     ui_transaction['payer'] = user_id_to_name[self.payer_id]
     ui_transaction['date'] = self.date.strftime('%m/%d/%Y')
     ui_transaction['description'] = self.description
     ui_transaction['total'] = self.total_paid
-    ui_transaction['expense'] = self.paid
+    ui_transaction['expense'] = self.paid 
     ui_transaction['gain'] = self.gain
     ui_transaction['balance'] = self.balance
     ui_transaction['transaction_type'] = self.transaction.type.name

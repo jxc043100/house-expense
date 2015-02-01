@@ -44,8 +44,6 @@ class ListTransaction(webapp2.RequestHandler):
     
 class ListMonths(webapp2.RequestHandler):
   def post(self):
-
-  
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(getMonths()))
 

@@ -15,6 +15,7 @@ from google.appengine.ext import ndb
 from model import UserType
 from model import User
 from model import TransactionType
+from model import Month
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -159,6 +160,27 @@ class MonthlySummaryPage(webapp2.RequestHandler):
 
     template = JINJA_ENVIRONMENT.get_template('monthlysummary.html')
     self.response.write(template.render(template_values))
+
+class ResidentsPage(webapp2.RequestHandler):
+    
+  def get(self):
+    header = util.PageHeader(self.request.uri)
+    
+    if not header.logged_in:
+        self.redirect('/')
+        return
+    
+    template_values = {
+        'user_id_to_name' : util.getUserToDisplayNames(),
+        'header' : header,
+        'users' : util.getAllUsers(),
+        'months' : util.getAllMonths(),
+    }
+
+    template = JINJA_ENVIRONMENT.get_template('residents.html')
+    self.response.write(template.render(template_values))
+
+
     
 application = webapp2.WSGIApplication([
     ('/', Main),
@@ -167,4 +189,6 @@ application = webapp2.WSGIApplication([
     ('/users', UsersPage),
     ('/register', RegisterPage),
     ('/monthlysummary', MonthlySummaryPage),
+    ('/residents', ResidentsPage),
 ], debug=True)
+

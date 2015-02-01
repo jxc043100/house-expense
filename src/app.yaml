@@ -13,6 +13,9 @@ handlers:
   
 - url: /users
   script: pages.application
+  
+- url: /residents
+  script: pages.application
 
 - url: /register
   script: pages.application
@@ -34,6 +37,9 @@ handlers:
 
 - url: /user/.*
   script: usercrud.application
+  
+- url: /resident/.*
+  script: residentcrud.application
 
 
 

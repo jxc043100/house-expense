@@ -39,4 +39,13 @@ class Transaction(ndb.Model):
   date = ndb.DateTimeProperty()
   description = ndb.StringProperty(indexed=True)
   total = ndb.FloatProperty(indexed=False)
-  share = ndb.StructuredProperty(Share, repeated=True)    
+  share = ndb.StructuredProperty(Share, repeated=True)
+
+class Resident(ndb.Model):
+  user_email = ndb.StringProperty()
+  days = ndb.IntegerProperty()
+
+class Month(ndb.Model):
+  month = ndb.StringProperty()
+  residents = ndb.StructuredProperty(Resident, repeated=True)
+  

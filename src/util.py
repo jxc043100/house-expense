@@ -10,6 +10,7 @@ from model import UserType
 from model import User
 from model import Transaction
 from model import TransactionType
+from model import Month
 
 from datetime import datetime
 
@@ -31,6 +32,10 @@ def getAllUsers():
   users_query = User.query()
   return users_query.fetch(20)
 
+def getAllMonths():
+  months_query = Month.query()
+  return months_query.fetch(20)
+
 class PageHeader():
   def __init__(self, current_uri):
     current_user = users.get_current_user()
@@ -39,10 +44,11 @@ class PageHeader():
         self.url_linktext = 'Logout'
         self.logged_in = True
         self.user_email = current_user.email()
+        self.is_admin = users.is_current_user_admin()
         invited_user = User.get_by_id(current_user.email())
         self.invited_user = invited_user
-        self.is_admin = users.is_current_user_admin()
-        self.type = invited_user.type.name
+        if invited_user:
+            self.type = invited_user.type.name
     else:
         self.url = users.create_login_url(current_uri)
         self.url_linktext = 'You must login first'
