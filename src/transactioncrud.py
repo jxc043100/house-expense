@@ -35,24 +35,7 @@ class ListTransaction(webapp2.RequestHandler):
 class ListMonths(webapp2.RequestHandler):
   def post(self):
     self.response.headers['Content-Type'] = 'application/json'
-    self.response.write(json.dumps(getMonths()))
-
-def getMonths():
-  months_array = []
-  start_date = datetime.strptime("09-01-2014","%m-%d-%Y")
-  month = datetime.today().month
-  year = datetime.today().year
-  month_to_add = datetime(year, month, 1)
-  months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
-                       'text' : month_to_add.strftime('%B %Y'),
-                       'selected' : True})
-  while month_to_add > start_date:
-    year = year - 1 if month == 1 else year
-    month = 12 if month == 1 else month - 1
-    month_to_add = datetime(year, month, 1)
-    months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
-                         'text' : month_to_add.strftime('%B %Y')})
-  return months_array
+    self.response.write(json.dumps(util.getMonths()))
 
 def transactionToDict(transaction, user_id_to_name):
   ui_transaction = {}

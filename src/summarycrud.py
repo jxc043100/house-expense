@@ -14,7 +14,6 @@ from model import Transaction
 from model import TransactionType
 from model import Month
 import logging
-from transactioncrud import getMonths
 
 from datetime import date
 from datetime import datetime
@@ -34,28 +33,31 @@ class SummaryEntry:
     self.total_paid = transaction.total
     self.paid = 0
     self.gain = 0
+    
+    total_days = 0
+    user_days = 0
+    month = Month.get_by_id(self.date.strftime('%m/01/%Y'))
+    user_id_to_email = util.getUserToEmail()
+    for resident in month.residents:
+        total_days += resident.days
+        if user_id_to_email[self.user_id] == resident.user_email:
+            user_days = resident.days
+    
     if transaction.owner_user_id == user_id:
       self.paid = self.total_paid
-    for share in transaction.share:
-      if share.target == user_id:
-        if transaction.type == TransactionType.NONRESIDENT:
-          self.paid = self.total_paid / len(transaction.share)
-        else:
-          self.gain = self.total_paid / len(transaction.share)
+    if transaction.type == TransactionType.COMMON_CLEANING or transaction.type == TransactionType.COMMON_FOOD:
+        self.gain = self.total_paid * user_days / total_days
+    else:
+        for share in transaction.share:
+          if share.target == user_id:
+            if transaction.type == TransactionType.NONRESIDENT:
+              self.paid = self.total_paid / len(transaction.share)
+            else:
+              self.gain = self.total_paid / len(transaction.share)
     self.balance = self.paid - self.gain
     
   def toUiEntry(self, user_id_to_name):
-    """
-    total_days = 0
-    user_days = 0
-    resident_count = 0
-    month = Month.get_by_id(self.date.strftime('%B %Y'))
-    for resident in month.residents:
-        total_days += resident.days
-        resident_count += 1
-        if User.get_by_id(self.user_id).email == resident.user_email:
-            user_days = resident.days
-    """
+
     ui_transaction = {}
     ui_transaction['payer'] = user_id_to_name[self.payer_id]
     ui_transaction['date'] = self.date.strftime('%m/%d/%Y')
@@ -144,7 +146,7 @@ class MonthlySummary(webapp2.RequestHandler):
     
     def post(self):
         summaries = []
-        months = getMonths()
+        months = util.getMonths()
         transactions_query = Transaction.query()
         transactions = transactions_query.fetch(50)
         num_users = len(util.getAllUsers())

@@ -28,6 +28,14 @@ def getUserToDisplayNames():
       user_id_to_name[user.user_id] = user.display_name
   return user_id_to_name
 
+def getUserToEmail():
+    all_users = getAllUsers()
+    user_id_to_email = {}
+    for user in all_users:
+        if user.user_id:
+            user_id_to_email[user.user_id] = user.email
+    return user_id_to_email
+
 def getAllUsers():
   users_query = User.query()
   return users_query.fetch(20)
@@ -65,3 +73,20 @@ def getTransactions(month_begin_str=False):
     transactions_query = Transaction.query(ndb.AND(Transaction.date >= month_begin,Transaction.date < month_end))
     transactions_query.order(Transaction.date)    
     return transactions_query.fetch()
+
+def getMonths():
+  months_array = []
+  start_date = datetime.strptime("09-01-2014","%m-%d-%Y")
+  month = datetime.today().month
+  year = datetime.today().year
+  month_to_add = datetime(year, month, 1)
+  months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
+                       'text' : month_to_add.strftime('%B %Y'),
+                       'selected' : True})
+  while month_to_add > start_date:
+    year = year - 1 if month == 1 else year
+    month = 12 if month == 1 else month - 1
+    month_to_add = datetime(year, month, 1)
+    months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
+                         'text' : month_to_add.strftime('%B %Y')})
+  return months_array

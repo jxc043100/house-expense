@@ -174,7 +174,7 @@ class ResidentsPage(webapp2.RequestHandler):
         'user_id_to_name' : util.getUserToDisplayNames(),
         'header' : header,
         'users' : util.getAllUsers(),
-        'months' : util.getAllMonths(),
+        'months' : util.getMonths(),
     }
 
     template = JINJA_ENVIRONMENT.get_template('residents.html')
