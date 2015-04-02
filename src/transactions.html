@@ -58,7 +58,7 @@
             </div>
             <div class="fitem">
                 <label>Type:</label>
-                <select id="transaction_type" class="easyui-combobox" name="transaction_type" style="width:150px;">
+                <select id="transaction_type" class="easyui-combobox" name="transaction_type" style="width:150px;" editable="false">
                   {% for type in transaction_types %}
                     <option value="{{type}}">{{type}}</option>
                   {% endfor %}
@@ -66,10 +66,7 @@
             </div>
             <div class="fitem">
                 <label>Purchased for:</label>
-                <select id="user" class="easyui-combobox" name="user" style="width:150px;">
-                  {% for user_id in user_id_to_name %}
-                    <option value="{{user_id}}">{{user_id_to_name[user_id]}}</option>
-                  {% endfor %}
+                <select id="user" id="for" class="easyui-combobox" name="user" style="width:150px;" editable="false" url="/resident/listOptions">
                 </select>
            </div>      
         </form>

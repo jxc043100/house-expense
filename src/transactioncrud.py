@@ -15,6 +15,7 @@ from model import TransactionType
 from model import UserType
 from datetime import datetime
 import util
+import re
 
 JINJA_ENVIRONMENT = jinja2.Environment(
     loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
@@ -65,6 +66,9 @@ class UpsertTransaction(webapp2.RequestHandler):
         transaction_id = self.request.get('transaction_id')
         type = self.request.get('transaction_type')
         target_user = self.request.get('user')
+        p = re.compile('\d+')
+        if not p.match(target_user):
+          return
         if not transaction_id:
           transaction = Transaction(owner_user_id=current_user.user_id(), description=description, total=total, date=time, type = TransactionType(type))
         else:
@@ -77,13 +81,7 @@ class UpsertTransaction(webapp2.RequestHandler):
         shares = []
         transaction.share = []
         if transaction.type == TransactionType.PERSONAL:
-          shares.append(Share(target=target_user, share=1)) 
-        elif (transaction.type == TransactionType.COMMON_FOOD or 
-              transaction.type == TransactionType.COMMON_CLEANING or 
-              transaction.type == TransactionType.NONRESIDENT):
-          for user in util.getAllUsers():
-            if user.type == UserType.ADMIN or user.type == UserType.RESIDENT:
-              shares.append(Share(target=user.user_id, share=1)) 
+          shares.append(Share(target=target_user, share=1))
         transaction.share = shares
         transaction.put()
         self.response.write(json.dumps({}))

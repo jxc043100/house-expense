@@ -33,7 +33,6 @@ class SummaryEntry:
     self.total_paid = transaction.total
     self.paid = 0
     self.gain = 0
-    
     total_days = 0
     user_days = 0
     month = Month.get_by_id(self.date.strftime('%m/01/%Y'))
@@ -45,14 +44,15 @@ class SummaryEntry:
     
     if transaction.owner_user_id == user_id:
       self.paid = self.total_paid
-    if transaction.type == TransactionType.COMMON_CLEANING or transaction.type == TransactionType.COMMON_FOOD:
+    if transaction.type == transaction.type == TransactionType.COMMON_FOOD:
         self.gain = self.total_paid * user_days / total_days
-    else:
+    if transaction.type == transaction.type == TransactionType.COMMON_CLEANING:
+        self.gain = self.total_paid / len(month.residents)
+    if transaction.type == TransactionType.NONRESIDENT:
+        self.paid = self.total_paid * user_days / total_days
+    elif transaction.type == TransactionType.PERSONAL:
         for share in transaction.share:
           if share.target == user_id:
-            if transaction.type == TransactionType.NONRESIDENT:
-              self.paid = self.total_paid / len(transaction.share)
-            else:
               self.gain = self.total_paid / len(transaction.share)
     self.balance = self.paid - self.gain
     
@@ -94,6 +94,8 @@ class List(webapp2.RequestHandler):
     self.response.write(json.dumps(result))
     
 def isApplicableTransaction(transaction, user_id, month_id):
+    if transaction.type == TransactionType.NONRESIDENT:
+        return True
     if transaction.owner_user_id == user_id:
         return True
     for share in transaction.share:

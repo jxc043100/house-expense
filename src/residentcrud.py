@@ -34,6 +34,22 @@ class List(webapp2.RequestHandler):
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(result))
 
+class ListResidentOptions(webapp2.RequestHandler):
+    def post(self):
+        residents_array = []
+        month_id = self.request.get('search_month')
+        if not month_id:
+            month_id = datetime(datetime.today().year, datetime.today().month, 1).strftime('%m/%d/%Y')
+        month = Month.get_by_id(month_id)
+        for resident in month.residents:
+            residents_array.append(
+                {
+                 'id': resident.user_id, 
+                 'text': User.get_by_id(resident.user_email).display_name
+                })
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(residents_array))
+        
 class Upsert(webapp2.RequestHandler):
     def post(self):
         email = self.request.get('email')
@@ -68,20 +84,25 @@ class Delete(webapp2.RequestHandler):
         
 class ListMonths(webapp2.RequestHandler):
     def post(self):
-        addMonths()
+        addMonth()
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(util.getMonths()))
 
-def addMonths():
+def addMonth():
     months = util.getMonths()
-    for month in months:
-        if not Month.get_by_id(month['id']):
-            month_to_add = Month(id=month['id'], name=month['text'], residents = [])
-            month_to_add.put()
+    current_month = Month.get_by_id(months[0]['id'])
+    last_month = Month.get_by_id(months[1]['id'])
+    if not current_month:
+        month_to_add = Month(id=months[0]['id'], name=months[0]['text'], residents = [])
+        if last_month:
+            for resident in last_month.residents:
+                month_to_add.residents.append(resident)
+        month_to_add.put()
 
 application = webapp2.WSGIApplication([
     ('/resident/list', List),
     ('/resident/upsert', Upsert),
     ('/resident/delete', Delete),
     ('/resident/listMonths', ListMonths),
+    ('/resident/listOptions', ListResidentOptions)
 ], debug=True)
