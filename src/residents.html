@@ -42,15 +42,12 @@
         <form id="fm" method="post" novalidate>
             <div class="fitem">
                 <label>Month:</label>
-                <select id="month" class="easyui-combobox" name="month" style="width:150px;" required="true">
-                    {% for month in months %}
-                      <option value="{{month['id']}}">{{month['text']}}</option>
-                    {% endfor %}
+                <select id="month" class="easyui-combobox" name="month" style="width:150px;" required="true" url="/transaction/listMonths" editable="false">
           		</select>
             </div>
             <div class="fitem">
                 <label>User:</label>
-                <select id="user" class="easyui-combobox" name="email" style="width:150px;" required="true">
+                <select id="user" class="easyui-combobox" name="email" style="width:150px;" required="true" editable="false">
                     {% for user in users %}
                       <option value="{{user.email}}">{{user.email}}</option>
                     {% endfor %}

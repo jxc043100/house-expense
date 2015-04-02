@@ -12,7 +12,7 @@
 </head>
 <body>
     <p>{{header.user_email}} | <a href="{{ header.url|safe }}">{{ header.url_linktext }} </a> | <a href="/users">Users</a> | <a href="/residents">Residents</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a> | <a href="/monthlysummary">Monthly Summary</a></p>
-    <table id="dg" title="All Users" class="easyui-datagrid" style="width:700px;height:500px"
+    <table id="user_dg" title="All Users" class="easyui-datagrid" style="width:700px;height:400px"
             url="user/list"
             toolbar="#toolbar" pagination="true"
             rownumbers="true" fitColumns="true" singleSelect="true">
@@ -65,7 +65,7 @@
             $('#fm').form('clear');
         }
         function editUser(){
-            var row = $('#dg').datagrid('getSelected');
+            var row = $('#user_dg').datagrid('getSelected');
             if (row){
                 $('#dlg').dialog('open').dialog('setTitle','Edit User');
                 $('#fm').form('load',row);
@@ -86,19 +86,19 @@
                         });
                     } else {
                         $('#dlg').dialog('close');        // close the dialog
-                        $('#dg').datagrid('reload');    // reload the user data
+                        $('#user_dg').datagrid('reload');    // reload the user data
                     }
                 }
             });
         }
         function deleteUser(){
-            var row = $('#dg').datagrid('getSelected');
+            var row = $('#user_dg').datagrid('getSelected');
             if (row){
                 $.messager.confirm('Confirm','Are you sure you want to delete this user?',function(r){
                     if (r){
                         $.post('user/delete',{email:row.email},function(result){
                             if (result.success){
-                                $('#dg').datagrid('reload');    // reload the user data
+                                $('#user_dg').datagrid('reload');    // reload the user data
                             } else {
                                 $.messager.show({    // show error message
                                     title: 'Error',
