@@ -42,6 +42,7 @@ class Transaction(ndb.Model):
   share = ndb.StructuredProperty(Share, repeated=True)
 
 class Resident(ndb.Model):
+  user_id = ndb.StringProperty()
   user_email = ndb.StringProperty()
   days = ndb.IntegerProperty()
 

@@ -82,7 +82,7 @@ class List(webapp2.RequestHandler):
     summary_array = []
     total_owed = 0
     for transaction in transactions:
-      if isApplicableTransaction(transaction, user_id):
+      if isApplicableTransaction(transaction, user_id, self.request.get('month')):
         summary_entry = SummaryEntry(user_id, transaction)
         summary_array.append(summary_entry.toUiEntry(user_id_to_name))
         total_owed += summary_entry.balance
@@ -93,12 +93,16 @@ class List(webapp2.RequestHandler):
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(result))
     
-def isApplicableTransaction(transaction, user_id):
+def isApplicableTransaction(transaction, user_id, month_id):
     if transaction.owner_user_id == user_id:
         return True
     for share in transaction.share:
         if share.target == user_id:
             return True
+    if ((transaction.type == TransactionType.COMMON_CLEANING 
+        or transaction.type == TransactionType.COMMON_FOOD)
+        and util.isUserResident(user_id, month_id)):
+        return True
     return False
 
 class ListUsers(webapp2.RequestHandler):

@@ -44,6 +44,12 @@ def getAllMonths():
   months_query = Month.query()
   return months_query.fetch(20)
 
+def isUserResident(user_id, month_id):
+    month = Month.get_by_id(month_id)
+    for resident in month.residents:
+        if resident.user_id == user_id:
+            return True
+        
 class PageHeader():
   def __init__(self, current_uri):
     current_user = users.get_current_user()

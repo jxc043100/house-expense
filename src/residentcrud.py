@@ -20,8 +20,8 @@ class List(webapp2.RequestHandler):
     def post(self):
         residents_array = []
         month_id = self.request.get('search_month')
-        """if not month_id:
-            month_id = datetime(datetime.today().year, datetime.today().month, 1).strftime('%m/%d/%Y')"""
+        if not month_id:
+            month_id = datetime(datetime.today().year, datetime.today().month, 1).strftime('%m/%d/%Y')
         month = Month.get_by_id(month_id)
         for resident in month.residents:
             residents_array.append(
@@ -48,7 +48,7 @@ class Upsert(webapp2.RequestHandler):
             month.put()
             self.response.write(json.dumps({}))
         else:
-            resident = Resident(user_email=email, days=int(days))
+            resident = Resident(user_email=email, days=int(days), user_id=User.get_by_id(email).user_id)
             month.residents.append(resident)
             month.put()
             self.response.write(json.dumps({}))
