@@ -11,7 +11,7 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
 </head>
 <body>
-    <p>{{header.user_email}} | <a href="{{ header.url|safe }}">{{ header.url_linktext }} </a> | <a href="/users">Users</a> | <a href="/residents">Residents</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a> | <a href="/monthlysummary">Monthly Summary</a></p>
+    <p>{{header.user_email}} | <a href="{{ header.url|safe }}">{{ header.url_linktext }} </a> | <a href="/users">Users</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a> | <a href="/monthlysummary">Monthly Summary</a></p>
     <table id="dg" title="All Transactions" class="easyui-datagrid" style="width:700px;height:500px"
             url="transaction/list"
             toolbar="#toolbar" pagination="true"
@@ -30,8 +30,8 @@
     <div id="toolbar">
         <input id="month_combo" class="easyui-combobox" style="width:120px"
                 url="/transaction/listMonths"
-                valueField="id" textField="text">
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="searchMonth()">Search</a>
+                valueField="id" textField="text"
+                editable="false">
       {% if header.invited_user %}
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newTransaction()">New Transaction</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" id="edit" iconCls="icon-edit" plain="true" onclick="editTransaction()">Edit Transaction</a>
@@ -66,7 +66,7 @@
             </div>
             <div class="fitem">
                 <label>Purchased for:</label>
-                <select id="user" id="for" class="easyui-combobox" name="user" style="width:150px;" editable="false" url="/resident/listOptions">
+                <select id="user" id="for" class="easyui-combobox" name="user" style="width:150px;" editable="false" data-options="valueField:'id',textField:'text',url:'/resident/listOptions'">
                 </select>
            </div>      
         </form>
@@ -157,6 +157,10 @@
                 });
             }
         }
+        
+        $('#month_combo').combobox({
+	        onSelect: searchMonth
+	    })
     </script>
     <style type="text/css">
         #fm{

@@ -11,10 +11,11 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
 </head>
 <body>
-    <p>{{header.user_email}} | <a href="{{ header.url|safe }}">{{ header.url_linktext }} </a> | <a href="/users">Users</a> | <a href="/residents">Residents</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a> | <a href="/monthlysummary">Monthly Summary</a></p>
-    <table id="user_dg" title="All Users" class="easyui-datagrid" style="width:700px;height:400px"
+    <p>{{header.user_email}} | <a href="{{ header.url|safe }}">{{ header.url_linktext }} </a> | <a href="/users">Users</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a> | <a href="/monthlysummary">Monthly Summary</a></p>
+    <div class="user_table">
+    <table id="user_dg" title="All Users" class="easyui-datagrid" style="width:700px;height:400px;"
             url="user/list"
-            toolbar="#toolbar" pagination="true"
+            toolbar="#user_toolbar" pagination="true"
             rownumbers="true" fitColumns="true" singleSelect="true">
         <thead>
             <tr>
@@ -25,7 +26,8 @@
             </tr>
         </thead>
     </table>
-    <div id="toolbar">
+    </div>
+    <div id="user_toolbar">
       {% if header.is_admin or header.type == "ADMIN" %}
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newUser()">New User</a>
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editUser()">Edit User</a>
@@ -33,10 +35,10 @@
       {% endif %}
     </div>
     
-    <div id="dlg" class="easyui-dialog" style="width:400px;height:400px;padding:10px 20px"
+    <div id="user_dialog" class="easyui-dialog" style="width:400px;height:400px;padding:10px 20px"
             closed="true" buttons="#dlg-buttons">
         <div class="ftitle">All Users</div>
-        <form id="fm" method="post" novalidate>
+        <form id="user_fm" method="post" novalidate>
             <div class="fitem">
                 <label>Email:</label>
                 <input name="email" class="easyui-textbox" required="true">
@@ -56,23 +58,74 @@
         </form>
     </div>
     <div id="dlg-buttons">
-        <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveTransaction()" style="width:90px">Save</a>
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#dlg').dialog('close')" style="width:90px">Cancel</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveUser()" style="width:90px">Save</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#user_dialog').dialog('close')" style="width:90px">Cancel</a>
     </div>
+    
+    <!-- Residents Table -->
+    <table id="residents_dg" title="Monthly Residents" class="easyui-datagrid" style="width:700px;height:400px"
+            url="resident/list"
+            toolbar="#toolbar" pagination="true"
+            rownumbers="true" fitColumns="true" singleSelect="true">
+        <thead>
+            <tr>
+                <th field="display_name" width="50">Name</th>
+                <th field="days" width="10">Days</th>
+                <th field="month" width="20">Month</th>
+            </tr>
+        </thead>
+    </table>
+    <div id="toolbar">
+      <input id="month_combo" class="easyui-combobox" editable="false" style="width:120px"
+          url="/resident/listMonths"
+          valueField="id" textField="text">
+      {% if header.is_admin or header.type == "ADMIN" %}
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="newResident()">New Resident</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-edit" plain="true" onclick="editResident()">Edit Resident</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-remove" plain="true" onclick="deleteResident()">Remove Resident</a>
+      {% endif %}
+    </div>
+    
+    <div id="residents_dlg" class="easyui-dialog" style="width:400px;height:400px;padding:10px 20px"
+            closed="true" buttons="#dlg-buttons">
+        <div class="ftitle">Resident</div>
+        <form id="residents_fm" method="post" novalidate>
+            <div class="fitem">
+                <label>Month:</label>
+                <select id="month" class="easyui-combobox" name="month" style="width:150px;" required="true" data-options="valueField:'id',textField:'text',url:'/transaction/listMonths'" editable="false">
+          		</select>
+            </div>
+            <div class="fitem">
+                <label>User:</label>
+                <select id="user" class="easyui-combobox" name="email" style="width:150px;" required="true" data-options="valueField:'id',textField:'text',url:'/user/listOptions'" editable="false">
+                </select>
+            </div>
+            <div class="fitem">
+                <label>Days:</label>
+                <input name="days" class="easyui-textbox" required="true">
+            </div>
+        </form>
+    </div>
+    <div id="dlg-buttons">
+        <a href="javascript:void(0)" class="easyui-linkbutton c6" iconCls="icon-ok" onclick="saveResident()" style="width:90px">Save</a>
+        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-cancel" onclick="javascript:$('#residents_dlg').dialog('close')" style="width:90px">Cancel</a>
+    </div>
+    
+    <!-- Javascript -->
     <script type="text/javascript">
         function newUser(){
             $('#dlg').dialog('open').dialog('setTitle','New User');
-            $('#fm').form('clear');
+            $('#user_fm').form('clear');
         }
         function editUser(){
             var row = $('#user_dg').datagrid('getSelected');
             if (row){
-                $('#dlg').dialog('open').dialog('setTitle','Edit User');
-                $('#fm').form('load',row);
+                $('#user_dialog').dialog('open').dialog('setTitle','Edit User');
+                $('#user_fm').form('load',row);
             }
         }
-        function saveTransaction(){
-            $('#fm').form('submit',{
+        function saveUser(){
+            $('#user_fm').form('submit',{
                 url: 'user/upsert',
                 onSubmit: function(){
                     return $(this).form('validate');
@@ -110,9 +163,79 @@
                 });
             }
         }
+        
+        function newResident(){
+            $('#residents_dlg').dialog('open').dialog('setTitle','New Resident');
+            $('#residents_fm').form('clear');
+        }
+        function editResident(){
+            var row = $('#residents_dg').datagrid('getSelected');
+            if (row){
+                $('#residents_dlg').dialog('open').dialog('setTitle','Edit Resident');
+                $('#residents_fm').form('load',row);
+            }
+        }
+        function saveResident(){
+            $('#residents_fm').form('submit',{
+                url: 'resident/upsert',
+                onSubmit: function(){
+                    return $(this).form('validate');
+                },
+                success: function(result){
+                    var result = eval('('+result+')');
+                    if (result.errorMsg){
+                        $.messager.show({
+                            title: 'Error',
+                            msg: result.errorMsg
+                        });
+                    } else {
+                        $('#residents_dlg').dialog('close');        // close the dialog
+                        $('#residents_dg').datagrid('reload');    // reload the user data
+                    }
+                }
+            });
+        }
+        function deleteResident(){
+            var row = $('#residents_dg').datagrid('getSelected');
+            if (row){
+              var search_month = $('#month_combo').combobox('getValue')
+              $.messager.confirm('Confirm','Are you sure you want to delete this user?',function(r){
+                if (r){
+                  $.post('resident/delete',{email:row.email, month:search_month},function(result){
+                      if (result.success){
+                          $('#residents_dg').datagrid('reload');    // reload the user data
+                      } else {
+                          $.messager.show({    // show error message
+                              title: 'Error',
+                              msg: result.errorMsg
+                          });
+                      }
+                  },'json');
+                }
+              });
+           }
+        }
+        function searchMonth(){
+          var search_month = $('#month_combo').combobox('getValue');
+          $.ajax({
+            type: "POST",
+            url: 'resident/list',
+            dataType: 'json',
+            data:'search_month='+search_month,    
+          }).done(function( responseJson ){
+            $('#residents_dg').datagrid('loadData', responseJson ); 
+          });
+        }
+        
+        $('#month_combo').combobox({
+	        onSelect: searchMonth
+	    })
     </script>
     <style type="text/css">
-        #fm{
+        .user_table{
+            margin-bottom:20px;
+        }
+        #user_fm{
             margin:0;
             padding:10px 30px;
         }

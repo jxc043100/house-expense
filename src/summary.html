@@ -11,12 +11,13 @@
     <script type="text/javascript" src="http://www.jeasyui.com/easyui/jquery.easyui.min.js"></script>
 </head>
 <body>
-    <p>{{header.user_email}} | <a href="{{ header.url|safe }}">{{ header.url_linktext }} </a> | <a href="/users">Users</a> | <a href="/residents">Residents</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a> | <a href="/monthlysummary">Monthly Summary</a></p>
+    <p>{{header.user_email}} | <a href="{{ header.url|safe }}">{{ header.url_linktext }} </a> | <a href="/users">Users</a> | <a href="/transactions">Transactions</a> | <a href="/summary">Summary</a> | <a href="/monthlysummary">Monthly Summary</a></p>
     <table id="dg" title="Your Transactions" class="easyui-datagrid" style="width:1000px;height:500px"
             url="summary/list"
             toolbar="#toolbar" pagination="true"
             rownumbers="true" fitColumns="true" singleSelect="true"
-            showFooter="true">
+            showFooter="true"
+            pagination="false">
         <thead>
             <tr>
                 <th field="payer" width="40">Payer</th>
@@ -35,11 +36,12 @@
     <div id="toolbar">
         <input id="month_combo" class="easyui-combobox" style="width:120px"
                 url="/transaction/listMonths"
-                valueField="id" textField="text">
+                valueField="id" textField="text"
+                editable="false">
         <input id="user_combo" class="easyui-combobox" style="width:100px"
                 url="/summary/listUsers"
-                valueField="id" textField="text">
-        <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-search" plain="true" onclick="searchSummary()">Search</a>
+                valueField="id" textField="text"
+                editable="false">
         <a href="javascript:void(0)" class="easyui-linkbutton" iconCls="icon-add" plain="true" onclick="pay()">Pay</a>
     </div>
     
@@ -83,6 +85,14 @@
        	    $('#dg').datagrid('loadData', responseJson ); 
        	  });
         }
+        
+        $('#month_combo').combobox({
+	        onSelect: searchSummary
+	    });
+	    $('#user_combo').combobox({
+	        onSelect: searchSummary
+	    })
+	    
         
     </script>
     <style type="text/css">

@@ -67,8 +67,6 @@ class UpsertTransaction(webapp2.RequestHandler):
         type = self.request.get('transaction_type')
         target_user = self.request.get('user')
         p = re.compile('\d+')
-        if not p.match(target_user):
-          return
         if not transaction_id:
           transaction = Transaction(owner_user_id=current_user.user_id(), description=description, total=total, date=time, type = TransactionType(type))
         else:
@@ -81,6 +79,8 @@ class UpsertTransaction(webapp2.RequestHandler):
         shares = []
         transaction.share = []
         if transaction.type == TransactionType.PERSONAL:
+          if not p.match(target_user):
+            return
           shares.append(Share(target=target_user, share=1))
         transaction.share = shares
         transaction.put()

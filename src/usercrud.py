@@ -36,6 +36,18 @@ class List(webapp2.RequestHandler):
     self.response.headers['Content-Type'] = 'application/json'
     self.response.write(json.dumps(result))
     
+class ListOptions(webapp2.RequestHandler):
+    def post(self):
+        user_array = []
+        for user in util.getAllUsers():
+            user_array.append(
+                {
+                 'id': user.email, 
+                 'text': user.display_name
+                })
+        self.response.headers['Content-Type'] = 'application/json'
+        self.response.write(json.dumps(user_array))
+
 class Upsert(webapp2.RequestHandler):
 
     def post(self):
@@ -75,4 +87,5 @@ application = webapp2.WSGIApplication([
     ('/user/list', List),
     ('/user/upsert', Upsert),
     ('/user/delete', Delete),
+    ('/user/listOptions', ListOptions)
 ], debug=True)
