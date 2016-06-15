@@ -114,7 +114,7 @@
     <!-- Javascript -->
     <script type="text/javascript">
         function newUser(){
-            $('#dlg').dialog('open').dialog('setTitle','New User');
+            $('#user_dialog').dialog('open').dialog('setTitle','New User');
             $('#user_fm').form('clear');
         }
         function editUser(){
@@ -138,7 +138,7 @@
                             msg: result.errorMsg
                         });
                     } else {
-                        $('#dlg').dialog('close');        // close the dialog
+                        $('#user_dialog').dialog('close');        // close the dialog
                         $('#user_dg').datagrid('reload');    // reload the user data
                     }
                 }
@@ -215,8 +215,9 @@
               });
            }
         }
-        function searchMonth(){
-          var search_month = $('#month_combo').combobox('getValue');
+        function searchMonth(search_month){
+          //var search_month = $('#month_combo').combobox('getValue');
+          console.log(search_month);
           $.ajax({
             type: "POST",
             url: 'resident/list',
@@ -228,7 +229,7 @@
         }
         
         $('#month_combo').combobox({
-	        onSelect: searchMonth
+	        onChange: function(value){searchMonth(value);}
 	    })
     </script>
     <style type="text/css">

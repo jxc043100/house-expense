@@ -169,8 +169,8 @@ class MonthlySummary(webapp2.RequestHandler):
                 if transaction.type == TransactionType.COMMON_CLEANING and transaction.date >= month_begin and transaction.date < month_end:
                     sum_utility_cost += transaction.total
             summaries.append({'month' : month['text'],
-                              'food_cost_per_person' : sum_food_cost / num_users,
-                              'utility_cost_per_person' : sum_utility_cost / num_users})
+                              'food_cost_per_person' : sum_food_cost / num_users if num_users > 0 else 0,
+                              'utility_cost_per_person' : sum_utility_cost / num_users if num_users > 0 else 0})
         
         self.response.write(json.dumps(summaries))
 application = webapp2.WSGIApplication([

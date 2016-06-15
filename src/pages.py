@@ -110,7 +110,7 @@ class TransactionsPage(webapp2.RequestHandler):
     }
     
 
-    if header.invited_user.type == UserType.NONRESIDENT:
+    if not header.invited_user or header.invited_user.type == UserType.NONRESIDENT:
       template_values['transaction_types'] = [TransactionType.NONRESIDENT]
     else:
       template_values['transaction_types'] = [TransactionType.COMMON_FOOD, 

@@ -73,25 +73,27 @@
             $('#dlg').dialog('open').dialog('setTitle','New Transaction');
             $('#fm').form('clear');
         }
-        function searchSummary(){
-          var user_id = $('#user_combo').combobox('getValue');
-          var month_id = $('#month_combo').combobox('getValue');
+        function searchSummary(user_id, month_id){
+          if (!user_id)
+          	user_id = $('#user_combo').combobox('getValue');
+          if (!month_id)
+            month_id = $('#month_combo').combobox('getValue');
         	$.ajax({
         	  type: "POST",
         	  url: 'summary/list',
         	  dataType: 'json',
         	  data:'user_id='+user_id+'&month=' + month_id,    
         	}).done(function( responseJson ){
-       	    $('#dg').datagrid('loadData', responseJson ); 
+       	    $('#dg').datagrid('loadData', responseJson); 
        	  });
         }
         
         $('#month_combo').combobox({
-	        onSelect: searchSummary
+	        onChange: function(value) {searchSummary(null, value);}
 	    });
 	    $('#user_combo').combobox({
-	        onSelect: searchSummary
-	    })
+	        onChange: function(value) {searchSummary(value, null);}
+	    });
 	    
         
     </script>

@@ -96,8 +96,7 @@
           })
 	    });
         
-        function searchMonth(){
-          var month = $('#month_combo').combobox('getValue');
+        function searchMonth(month){
           $.ajax({
             type: "POST",
             url: 'transaction/list',
@@ -159,7 +158,7 @@
         }
         
         $('#month_combo').combobox({
-	        onSelect: searchMonth
+	        onChange: function(value){searchMonth(value);}
 	    })
     </script>
     <style type="text/css">
