@@ -38,16 +38,18 @@ class SummaryEntry:
     month = Month.get_by_id(self.date.strftime('%m/01/%Y'))
     user_id_to_email = util.getUserToEmail()
     for resident in month.residents:
-        total_days += resident.days
+        total_days += resident.days * resident.inhabitants
         if user_id_to_email[self.user_id] == resident.user_email:
-            user_days = resident.days
+            user_days = resident.days * resident.inhabitants
+            
+    num_inhabitants = util.getNumInhabitants(month)
     
     if transaction.owner_user_id == user_id:
       self.paid = self.total_paid
-    if transaction.type == transaction.type == TransactionType.COMMON_FOOD:
+    if transaction.type == TransactionType.COMMON_FOOD:
         self.gain = self.total_paid * user_days / total_days
-    if transaction.type == transaction.type == TransactionType.COMMON_CLEANING:
-        self.gain = self.total_paid / len(month.residents)
+    if transaction.type == TransactionType.COMMON_CLEANING:
+        self.gain = self.total_paid / num_inhabitants
     if transaction.type == TransactionType.NONRESIDENT:
         self.paid = self.total_paid * user_days / total_days
     elif transaction.type == TransactionType.PERSONAL:
@@ -101,9 +103,8 @@ def isApplicableTransaction(transaction, user_id, month_id):
     for share in transaction.share:
         if share.target == user_id:
             return True
-    if ((transaction.type == TransactionType.COMMON_CLEANING 
-        or transaction.type == TransactionType.COMMON_FOOD)
-        and util.isUserResident(user_id, month_id)):
+    if (transaction.type == TransactionType.COMMON_CLEANING or transaction.type == TransactionType.COMMON_FOOD) \
+        and util.isUserResident(user_id, month_id):
         return True
     return False
 
@@ -155,11 +156,12 @@ class MonthlySummary(webapp2.RequestHandler):
         months = util.getMonths()
         transactions_query = Transaction.query()
         transactions = transactions_query.fetch(50)
-        num_users = len(util.getAllUsers())
         
         for month in months:
             month_begin = datetime.strptime(month['id'],"%m/%d/%Y")
             month_end = datetime(month_begin.year + (month_begin.month / 12), ((month_begin.month % 12) + 1), 1)
+            num_inhabitants = util.getNumInhabitants(month)
+            
             sum_food_cost = 0
             for transaction in transactions:
                 if transaction.type == TransactionType.COMMON_FOOD and transaction.date >= month_begin and transaction.date < month_end:
@@ -169,8 +171,8 @@ class MonthlySummary(webapp2.RequestHandler):
                 if transaction.type == TransactionType.COMMON_CLEANING and transaction.date >= month_begin and transaction.date < month_end:
                     sum_utility_cost += transaction.total
             summaries.append({'month' : month['text'],
-                              'food_cost_per_person' : sum_food_cost / num_users if num_users > 0 else 0,
-                              'utility_cost_per_person' : sum_utility_cost / num_users if num_users > 0 else 0})
+                              'food_cost_per_person' : sum_food_cost / num_inhabitants if num_inhabitants > 0 else 0,
+                              'utility_cost_per_person' : sum_utility_cost / num_inhabitants if num_inhabitants > 0 else 0})
         
         self.response.write(json.dumps(summaries))
 application = webapp2.WSGIApplication([

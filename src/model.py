@@ -45,6 +45,7 @@ class Resident(ndb.Model):
   user_id = ndb.StringProperty()
   user_email = ndb.StringProperty()
   days = ndb.IntegerProperty()
+  inhabitants = ndb.IntegerProperty()
 
 class Month(ndb.Model):
   residents = ndb.StructuredProperty(Resident, repeated=True)

@@ -74,10 +74,11 @@
             $('#fm').form('clear');
         }
         function searchSummary(user_id, month_id){
-          if (!user_id)
-          	user_id = $('#user_combo').combobox('getValue');
-          if (!month_id)
-            month_id = $('#month_combo').combobox('getValue');
+        	if (!user_id)
+          		user_id = $('#user_combo').combobox('getValue');
+        	if (!month_id)
+           		month_id = $('#month_combo').combobox('getValue');
+        	console.log(user_id);
         	$.ajax({
         	  type: "POST",
         	  url: 'summary/list',

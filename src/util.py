@@ -96,3 +96,9 @@ def getMonths():
     months_array.append({'id' : month_to_add.strftime('%m/%d/%Y'), 
                          'text' : month_to_add.strftime('%B %Y')})
   return months_array
+
+def getNumInhabitants(month):
+    num_inhabitants = 0
+    for resident in month.residents:
+        num_inhabitants += resident.inhabitants
+    return num_inhabitants

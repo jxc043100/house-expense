@@ -29,7 +29,8 @@ class List(webapp2.RequestHandler):
                 'display_name': User.get_by_id(resident.user_email).display_name,
                 'days': resident.days,
                 'month': month.name,
-                'id' : month.key.id()})
+                'id' : month.key.id(),
+                'inhabitants' : resident.inhabitants})
         result = {'rows': residents_array, 'total': len(residents_array)}
         self.response.headers['Content-Type'] = 'application/json'
         self.response.write(json.dumps(result))
@@ -55,16 +56,21 @@ class Upsert(webapp2.RequestHandler):
         email = self.request.get('email')
         days = self.request.get('days')
         month = Month.get_by_id(self.request.get('month'))
+        inhabitants = self.request.get('inhabitants')
         resident = None
+        
         for listed_resident in month.residents:
             if listed_resident.user_email == email:
                 resident = listed_resident
         if resident:
             resident.days = int(days)
+            resident.inhabitants = int(inhabitants)
             month.put()
             self.response.write(json.dumps({}))
         else:
-            resident = Resident(user_email=email, days=int(days), user_id=User.get_by_id(email).user_id)
+            resident = Resident(user_email=email, days=int(days), 
+                                user_id=User.get_by_id(email).user_id, 
+                                inhabitants=int(inhabitants))
             month.residents.append(resident)
             month.put()
             self.response.write(json.dumps({}))

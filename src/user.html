@@ -69,8 +69,9 @@
             rownumbers="true" fitColumns="true" singleSelect="true">
         <thead>
             <tr>
-                <th field="display_name" width="50">Name</th>
-                <th field="days" width="10">Days</th>
+                <th field="display_name" width="40">Name</th>
+                <th field="days" width="15">Days</th>
+                <th field="inhabitants" width="15">Inhabitants</th>
                 <th field="month" width="20">Month</th>
             </tr>
         </thead>
@@ -103,6 +104,10 @@
             <div class="fitem">
                 <label>Days:</label>
                 <input name="days" class="easyui-textbox" required="true">
+            </div>
+            <div class="fitem">
+                <label>Inhabitants:</label>
+                <input name="inhabitants" class="easyui-textbox" required="true">
             </div>
         </form>
     </div>
@@ -173,7 +178,7 @@
             console.log(row);
             if (row){
                 $('#residents_dlg').dialog('open').dialog('setTitle','Edit Resident');
-                $('#residents_fm').form('load',{month:row.id, email:row.email, days:row.days});
+                $('#residents_fm').form('load',{month:row.id, email:row.email, days:row.days, inhabitants:row.inhabitants});
             }
         }
         function saveResident(){
